@@ -7,11 +7,15 @@ A messenger demo app in one file (`index.html`, with all the HTML, CSS and JS in
 2. Open `https://bkar81.github.io/Chatly/` in Chrome on Android.
 3. Tap **⋮ → Add to Home screen → Install**. It then opens full screen, with no address bar.
 
+## Edit mode / Demo mode
+Settings → **Edit mode** switches between the two modes.
+- **Edit mode** (an orange "EDIT MODE" tag is shown): long-press almost anything to edit it right there, including messages, chat rows, the chat header name or photo, date chips, the encryption notice, status cards, channels, call rows, group members and your own profile. A **Sending as** chip above the message box lets you type messages as any person.
+- **Demo mode**: no editing at all, and the app behaves like a normal messenger. Switch to it before recording.
+
 ## Hidden controls (nobody sees them in the recording)
 | Action | What it does |
 |---|---|
-| Long-press the **Chatly** title on the home screen | Opens **Chatly Studio**, the editor |
-| Long-press a chat's **name** in its header | Opens Studio for that chat |
+| Long-press the **Chatly** title on the home screen (in Edit mode) | Opens **Chatly Studio**, the full editor |
 | Long-press **Send** | Sends the typed text as the *other person* (in a group, you pick who) |
 | Swipe a message right | Reply |
 | Long-press a message | React, star, delete, copy, forward, edit (from ⋮) |
