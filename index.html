@@ -1159,7 +1159,7 @@ function bindInfoEdit(c){const t=$('#iTop');if(t)longPress(t,()=>{if(EDIT())edit
 $('#search').addEventListener('input',renderChats);
 applyTheme();history.replaceState({root:1},'');renderHome();renderPill();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(tab==='chats'&&!cur)renderChats()}});
-if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&window.isSecureContext&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
