@@ -14,6 +14,10 @@ Settings → **Edit mode** switches between the two modes.
 - Long-press a message to edit its text, sender (and the sender's name), time, day, ticks and more. Long-press a chat title to edit the contact or group, including its scripted replies.
 - **Demo mode**: no editing at all, and the app behaves like a normal messenger. Switch to it before recording.
 
+## Profile photos & renaming
+- Settings → **Profile photos**: set a photo once per *name*. Any chat, group, member or message showing that name uses it. You can pick one of 10 built-in sample pictures or a photo from your gallery.
+- Settings → **Renaming a sender changes**: choose *Only that message* or *Every message with the same name*. This applies when you edit the sender name in a message (Edit mode → long-press a message).
+
 ## Theme
 Settings → **Chats** opens the theme editor. Every colour (backgrounds, text, bubbles, ticks, buttons, chips, header, pattern…) can be set with a colour picker or a hex code, separately for light and dark mode. It also has presets (Blue is the default, plus Teal, Purple, Rose and Graphite), reset, and export/import.
 

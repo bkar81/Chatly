@@ -293,6 +293,11 @@ svg{display:block}
 .tseg button{padding:7px 14px;border-radius:18px;background:var(--chipbg);color:var(--chipt);font-size:14px;font-weight:500}
 .tseg button.on{background:var(--chipon);color:var(--chipont)}
 .tseg .sw{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.dpg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 6px}
+.dpg button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border-radius:12px;border:2px solid transparent}
+.dpg button.on{border-color:var(--accent);background:var(--chipbg)}
+.dpg img{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.dpg small{font-size:11px;color:var(--sec)}
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#3b4a54;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:90;white-space:nowrap}
 
 /* info */
@@ -526,6 +531,25 @@ function toast(msg){const t=document.createElement('div');t.className='toast';t.
 function resizeImg(file,max,q){return new Promise(res=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{let w=im.width,h=im.height;const k=Math.min(1,max/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);res(cv.toDataURL('image/jpeg',q||.82))};im.src=r.result};r.readAsDataURL(file)})}
 function pickFile(inp,cb){const el=$(inp);el.value='';el.onchange=()=>{if(el.files[0])cb(el.files[0])};el.click()}
 
+
+/* ================= SAMPLE PROFILE PHOTOS (original illustrations) ================= */
+const DPS=[
+ ['Sunset','<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7e5f"/><stop offset=".6" stop-color="#feb47b"/></linearGradient></defs><rect width="100" height="100" fill="url(#a)"/><circle cx="50" cy="60" r="18" fill="#fff3c4"/><rect y="62" width="100" height="38" fill="#2b4c7e"/><path d="M0 70q12-4 25 0t25 0 25 0 25 0M0 80q12-4 25 0t25 0 25 0 25 0" stroke="#7fa7d9" stroke-width="2" fill="none"/>'],
+ ['Mountains','<rect width="100" height="100" fill="#8ec5fc"/><circle cx="78" cy="22" r="9" fill="#fff6c9"/><path d="M-5 85 30 35l20 28 14-18 41 40z" fill="#4b6a88"/><path d="M30 35l-8 11 6-2 4 5 4-6z M64 45l-6 8 5-1 3 4 4-5z" fill="#fff"/><rect y="80" width="100" height="20" fill="#5fa55a"/>'],
+ ['Flower','<rect width="100" height="100" fill="#ffd1dc"/><path d="M50 60v40" stroke="#3f8f4a" stroke-width="4"/><path d="M50 85c-10-10-22-6-22-6s8 12 22 6z" fill="#4caf50"/><g fill="#ff4f7b">'+[0,60,120,180,240,300].map(a=>`<ellipse cx="50" cy="28" rx="10" ry="16" transform="rotate(${a} 50 44)"/>`).join('')+'</g><circle cx="50" cy="44" r="9" fill="#ffd54f"/>'],
+ ['Coffee','<rect width="100" height="100" fill="#c8a27c"/><path d="M28 45h40v18a18 18 0 0 1-18 18h-4a18 18 0 0 1-18-18z" fill="#fff"/><path d="M68 50h5a8 8 0 0 1 0 16h-6" stroke="#fff" stroke-width="5" fill="none"/><ellipse cx="48" cy="46" rx="18" ry="3" fill="#6d4c41"/><path d="M40 38c-4-6 4-8 0-14M52 38c-4-6 4-8 0-14" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/><rect x="20" y="82" width="62" height="4" rx="2" fill="#8d6e63"/>'],
+ ['Kitty','<rect width="100" height="100" fill="#4fc3c3"/><path d="M28 100c0-26 10-40 22-40s22 14 22 40z" fill="#263238"/><circle cx="50" cy="48" r="18" fill="#263238"/><path d="M35 40l2-18 12 12zM65 40l-2-18-12 12z" fill="#263238"/><circle cx="43" cy="47" r="3" fill="#ffeb3b"/><circle cx="57" cy="47" r="3" fill="#ffeb3b"/><path d="M47 55l3 2 3-2" stroke="#90a4ae" stroke-width="1.5" fill="none"/>'],
+ ['Diya','<defs><radialGradient id="g" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#7b3fa0"/><stop offset="1" stop-color="#2a1140"/></radialGradient></defs><rect width="100" height="100" fill="url(#g)"/><circle cx="50" cy="40" r="22" fill="#ffb300" opacity=".18"/><path d="M50 22c8 10 7 20 0 24-7-4-8-14 0-24z" fill="#ffca28"/><path d="M50 32c3 5 3 10 0 12-3-2-3-7 0-12z" fill="#fff8e1"/><path d="M22 56h56c-4 14-16 20-28 20S26 70 22 56z" fill="#e65100"/><path d="M22 56h56" stroke="#ffab40" stroke-width="3"/>'],
+ ['Cricket','<rect width="100" height="100" fill="#66bb6a"/><ellipse cx="50" cy="96" rx="60" ry="22" fill="#4e9a52"/><g transform="rotate(35 50 50)"><rect x="45" y="14" width="10" height="52" rx="4" fill="#f5deb3"/><rect x="47" y="64" width="6" height="22" rx="2" fill="#5d4037"/></g><circle cx="27" cy="70" r="8" fill="#d32f2f"/><path d="M21 66q6 4 12 8" stroke="#fff" stroke-width="1.2" fill="none"/>'],
+ ['Car','<rect width="100" height="100" fill="#b3e5fc"/><rect y="74" width="100" height="26" fill="#607d8b"/><path d="M14 70v-10c0-4 3-7 7-7h8l10-12h24l12 12h6c4 0 6 3 6 6v11z" fill="#e53935"/><path d="M42 44h9v9H34zM55 44h7l9 9H55z" fill="#e3f2fd"/><circle cx="31" cy="72" r="8" fill="#212121"/><circle cx="70" cy="72" r="8" fill="#212121"/><circle cx="31" cy="72" r="3" fill="#bdbdbd"/><circle cx="70" cy="72" r="3" fill="#bdbdbd"/>'],
+ ['Tree','<defs><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a1c4fd"/><stop offset="1" stop-color="#c2e9fb"/></linearGradient></defs><rect width="100" height="100" fill="url(#t)"/><rect y="80" width="100" height="20" fill="#7cb342"/><rect x="46" y="50" width="8" height="32" fill="#6d4c41"/><circle cx="50" cy="40" r="20" fill="#388e3c"/><circle cx="36" cy="48" r="12" fill="#43a047"/><circle cx="64" cy="48" r="12" fill="#43a047"/>'],
+ ['Heart','<defs><linearGradient id="h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8e2de2"/><stop offset="1" stop-color="#4a00e0"/></linearGradient></defs><rect width="100" height="100" fill="url(#h)"/><path d="M50 76S22 58 22 40a13 13 0 0 1 28-6 13 13 0 0 1 28 6c0 18-28 36-28 36z" fill="#fff"/><circle cx="24" cy="22" r="3" fill="#fff" opacity=".5"/><circle cx="80" cy="76" r="4" fill="#fff" opacity=".4"/>'],
+].map(([n,b])=>[n,'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${b}</svg>`)]);
+function imgSrc(v){if(!v)return null;if(/^dp:\d+$/.test(v)){const d=DPS[+v.slice(3)-1];return d?d[1]:null}return v}
+const normName=n=>String(n||'').trim().toLowerCase();
+function personPhoto(name){const k=normName(name);if(!k)return null;const p=(S.people||[]).find(x=>normName(x.name)===k);return p?imgSrc(p.avatar):null}
+function seedPeople(){return [['Priya','dp:3'],['Ravi Kumar','dp:2'],['Divya','dp:1'],['Amma','dp:6'],['Vikram','dp:7'],['Anitha','dp:5'],['Deepa','dp:4'],['Arun Anna','dp:8'],['Meena','dp:9'],['Family ❤️','dp:10']].map(([name,avatar])=>({name,avatar}))}
+
 /* ================= STATE ================= */
 const KEY='chatly_v1';
 let S;
@@ -579,12 +603,12 @@ function seed(){
  const cricket={id:'g_cric',type:'group',name:'Cricket Gang 🏏',archived:true,members:[{id:'k1',name:'Naveen',color:'#02a698',phone:'+91 90000 11111'},{id:'k2',name:'Saravanan',color:'#df3a54',phone:'+91 90000 22222'}],
    messages:[m('k1','Saturday match 6 am. Late aana fine 😤',3,'21:00'),m('k2','Ok da',3,'21:05')]};
  return {v:1,me:{name:'Karthik',about:'Hey there! I am using Chatly.',avatar:null,phone:'+91 98400 12345'},
-  settings:{h24:false,theme:'auto',d1:1.2,d2:2.5,finalTick:'read',autoReply:true,enc:true,fab2:true,typingBubble:true,editMode:true},
+  settings:{renameScope:'one',h24:false,theme:'auto',d1:1.2,d2:2.5,finalTick:'read',autoReply:true,enc:true,fab2:true,typingBubble:true,editMode:true},
   chats:[fam,priya,off,ravi,deepa,divya,arun,suresh,cricket],
   calls:[{id:uid(),chat:'c_ravi',dir:'out',video:false,day:0,t:'09:15'},{id:uid(),chat:'c_priya',dir:'missed',video:true,day:1,t:'21:40'},{id:uid(),chat:'c_divya',dir:'in',video:false,day:2,t:'00:05'},{id:uid(),chat:'c_arun',dir:'out',video:false,day:4,t:'17:30'},{id:uid(),chat:'g_fam',dir:'in',video:true,day:6,t:'20:00'}],
   channels:[{name:'Tamil Tech Talks',emoji:'💻',bg:'#1f7aec',followers:'1.2M'},{name:'Daily Cricket Updates',emoji:'🏏',bg:'#00a884',followers:'3.4M'},{name:'Chennai Weather',emoji:'🌦️',bg:'#fc8d31',followers:'845K'}]};
 }
-function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S||!S.chats)S=seed();S.settings=Object.assign(seed().settings,S.settings||{})}
+function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!S||!S.chats)S=seed();if(!S.people)S.people=seedPeople();S.settings=Object.assign(seed().settings,S.settings||{})}
 let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Storage full – remove some images')}},250)}
 load();
 
@@ -635,12 +659,13 @@ function showScreen(id,onClose){const el=$('#'+id);el.classList.add('show');push
 
 /* ================= HELPERS ================= */
 const chatById=id=>S.chats.find(c=>c.id===id);
-function avatarHTML(o,size,isGroup){const s=`width:${size}px;height:${size}px`;if(o&&o.avatar)return `<div class="av" style="${s}"><img src="${o.avatar}"></div>`;
+function avatarHTML(o,size,isGroup){const s=`width:${size}px;height:${size}px`;const src=o?(imgSrc(o.avatar)||personPhoto(o.name)):null;if(src)return `<div class="av" style="${s}"><img src="${src}"></div>`;
  if(o&&o.initials){return `<div class="av" style="${s};background:${o.color||COLORS[hash(o.name)%COLORS.length]}"><span class="ini" style="font-size:${size*.4}px">${esc((o.name||'?').trim()[0]||'?')}</span></div>`}
  return `<div class="av" style="${s}"><svg viewBox="0 0 24 24"><path d="${isGroup?P.group:P.person}"/></svg></div>`}
 const chatAv=(c,size)=>avatarHTML(c,size,c.type==='group');
 function member(c,id){if(id==='me')return {id:'me',name:'You',color:'var(--accent)'};if(c.type==='group')return c.members.find(x=>x.id===id)||{name:'Unknown',color:'#888'};return {id:'them',name:c.name,color:'#1f7aec'}}
-function senderName(c,m){return m.from==='me'?'You':(c.type==='group'?member(c,m.from).name:c.name)}
+function grp0(c,m){if(m.from==='me'||m.from==='sys')return {name:'You'};const mem=c.type==='group'?member(c,m.from):{name:c.name,avatar:c.avatar};return m.sname?{name:m.sname,avatar:null}:mem}
+function senderName(c,m){if(m.from!=='me'&&m.sname)return m.sname;return m.from==='me'?'You':(c.type==='group'?member(c,m.from).name:c.name)}
 function realMsgs(c){return c.messages.filter(m=>m.type!=='system')}
 function lastMsg(c){return c.messages[c.messages.length-1]}
 function msgPreviewText(m){if(m.type==='image')return m.text||'Photo';if(m.type==='voice')return m.dur||'0:05';if(m.type==='deleted')return m.from==='me'?'You deleted this message':'This message was deleted';return m.text}
@@ -802,10 +827,11 @@ function bubbleMetaHTML(m){const st=m.starred?ic('star',11,'fill:currentColor'):
 function spacerW(m){let w=48+(S.settings.h24?-12:0);if(m.from==='me')w+=20;if(m.edited)w+=40;if(m.starred)w+=14;return w}
 function msgHTML(c,m,prev){
  if(m.type==='system')return `<div class="sys">${esc(m.text)}</div>`;
- const out=m.from==='me';const first=!prev||prev.type==='system'||prev.from!==m.from||prev.day!==m.day;
+ const out=m.from==='me';const first=!prev||prev.type==='system'||prev.from!==m.from||prev.day!==m.day||(prev.sname||'')!==(m.sname||'');
+ const shown=grp0(c,m);
  const grp=c.type==='group'&&!out;const mem=grp?member(c,m.from):null;
  let inner='';
- if(grp&&first)inner+=`<div class="snd" style="color:${mem.color}">${esc(mem.name)}${S.settings.showPhone?`<span class="ph">${esc(mem.phone||'')}</span>`:''}</div>`;
+ if(grp&&first)inner+=`<div class="snd" style="color:${mem.color}">${esc(shown.name)}${S.settings.showPhone?`<span class="ph">${esc(mem.phone||'')}</span>`:''}</div>`;
  if(m.forwarded)inner+=`<div class="fwd">${ic('forward')}Forwarded</div>`;
  if(m.replyTo&&m.type!=='deleted'){const q=c.messages.find(x=>x.id===m.replyTo);if(q){const qn=q.from==='me'?'You':senderName(c,q);const qc=q.from==='me'?'var(--accent)':(c.type==='group'?member(c,q.from).color:'var(--read)');
   inner+=`<div class="quote" data-q="${q.id}" style="--qc:${qc}"><div style="flex:1;min-width:0"><span class="qn">${esc(qn)}</span><span class="qt">${q.type==='image'?'📷 ':q.type==='voice'?'🎤 ':''}${esc(msgPreviewText(q))}</span></div>${q.type==='image'&&q.img?`<img src="${q.img}">`:''}</div>`}}
@@ -813,12 +839,12 @@ function msgHTML(c,m,prev){
  if(m.type==='deleted')inner+=`<div class="del">${ic('block')}<span>${out?'You deleted this message':'This message was deleted'}</span><span class="sp" style="width:${spacerW(m)-(out?20:0)}px"></span></div>`;
  else if(m.type==='image'){cls+=' img'+(m.text?'':' nocap');inner+=`<img class="ph" src="${m.img||''}">`+(m.text?`<div class="cap tx">${linkify(m.text)}<span class="sp" style="width:${spacerW(m)}px"></span></div>`:'')}
  else if(m.type==='voice'){const h=hash(m.id);const bars=Array.from({length:34},(_,i)=>`<i style="height:${4+((h>>(i%24))&7)*2.6+(i%5===0?5:0)}px"></i>`).join('');
-  const av=out?avatarHTML(S.me,46):(grp?avatarHTML(mem,46):chatAv(c,46));
+  const av=out?avatarHTML(S.me,46):(grp?avatarHTML(shown,46):avatarHTML({name:senderName(c,m),avatar:m.sname?null:c.avatar},46));
   inner+=`<div class="voice ${m.heard||out?'heard':''}" data-v="${m.id}"><div class="vav">${av}<span class="mic">${ic('mic')}</span></div><button class="play">${ic('play')}</button><div class="wave">${bars}<span class="knob"></span></div><span class="dur">${esc(m.dur||'0:05')}</span></div>`}
  else {const ec=emojiCount(m.text);inner+=`<div class="tx ${ec&&!m.replyTo&&!m.forwarded?(ec===1?'big':'big2'):''}">${linkify(m.text)}<span class="sp" style="width:${spacerW(m)}px"></span></div>`}
  inner+=bubbleMetaHTML(m);
  const reacts=m.reacts&&m.reacts.length?`<div class="reacts">${[...new Set(m.reacts)].join('')}${m.reacts.length>1?`<small>${m.reacts.length}</small>`:''}</div>`:'';
- const gav=c.type==='group'&&!out?`<div class="gav">${first?avatarHTML(mem,30):''}</div>`:'';
+ const gav=c.type==='group'&&!out?`<div class="gav">${first?avatarHTML(shown,30):''}</div>`:'';
  return `<div class="row ${out?'out':'in'} ${first?'first':''} ${reacts?'hasr':''} ${sel.has(m.id)?'selected':''}" data-id="${m.id}">${gav}<div class="bwrap"><div class="swipeicon">${ic('reply')}</div><div class="${cls}">${inner}${reacts}</div></div></div>`;
 }
 function renderMsgs(keepScroll){const c=cur;const box=$('#msgs');const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;const st=box.scrollTop;
@@ -1008,7 +1034,7 @@ function openNewChat(isCall,isGroup,fwdMsgs){auxKind=null;const dms=S.chats.filt
 }
 function openSettings(){fillSettings();auxKind='settings';showScreen('aux',()=>{auxKind=null})}
 function fillSettings(){const rows=[['key','Account','Security notifications, change number'],['lock','Privacy','Block contacts, disappearing messages'],['person','Avatar','Create, edit, profile photo'],['group','Lists','Manage people and groups'],['chatb','Chats','Theme, colours, wallpaper'],['bell','Notifications','Message, group & call tones'],['data','Storage and data','Network usage, auto-download'],['globe','App language',"English (device's language)"],['help','Help','Help centre, contact us, privacy policy'],['group','Invite a friend','']];
- $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">Settings</div><button class="ibtn">${ic('search')}</button></div><div class="scroll"><div class="prof" id="setProf">${avatarHTML(S.me,64)}<div style="flex:1"><div class="n">${esc(S.me.name)}</div><div class="a">${esc(S.me.about)}</div></div>${ic('qr',24,'fill:var(--accent)')}</div><div class="gap" style="height:1px"></div><div class="irow" id="modeRow">${ic('edit')}<div style="flex:1"><div>Edit mode</div><div class="sub">${EDIT()?'On – long-press anything to edit it. Turn off before recording.':'Off – Demo mode. The app behaves like a normal messenger.'}</div></div><span class="toggle ${EDIT()?'on':''}"></span></div>${rows.map(r=>`<div class="irow" ${r[1]==='Chats'?'id="setChats"':''}>${ic(r[0])}<div><div>${r[1]}</div>${r[2]?`<div class="sub">${r[2]}</div>`:''}</div></div>`).join('')}<div style="text-align:center;color:var(--sec);font-size:13px;padding:24px 0 40px">from<br><b style="color:var(--text);letter-spacing:1px">${esc(appName())}</b></div></div>`;
+ $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">Settings</div><button class="ibtn">${ic('search')}</button></div><div class="scroll"><div class="prof" id="setProf">${avatarHTML(S.me,64)}<div style="flex:1"><div class="n">${esc(S.me.name)}</div><div class="a">${esc(S.me.about)}</div></div>${ic('qr',24,'fill:var(--accent)')}</div><div class="gap" style="height:1px"></div><div class="irow" id="peopleRow">${ic('contact')}<div style="flex:1"><div>Profile photos</div><div class="sub">Photo for each name – shows in every chat</div></div></div><div class="irow" id="scopeRow">${ic('edit')}<div style="flex:1"><div>Renaming a sender changes</div><div class="sub">${S.settings.renameScope==='all'?'Every message with the same name':'Only that message'}</div></div></div><div class="irow" id="modeRow">${ic('edit')}<div style="flex:1"><div>Edit mode</div><div class="sub">${EDIT()?'On – long-press anything to edit it. Turn off before recording.':'Off – Demo mode. The app behaves like a normal messenger.'}</div></div><span class="toggle ${EDIT()?'on':''}"></span></div>${rows.map(r=>`<div class="irow" ${r[1]==='Chats'?'id="setChats"':''}>${ic(r[0])}<div><div>${r[1]}</div>${r[2]?`<div class="sub">${r[2]}</div>`:''}</div></div>`).join('')}<div style="text-align:center;color:var(--sec);font-size:13px;padding:24px 0 40px">from<br><b style="color:var(--text);letter-spacing:1px">${esc(appName())}</b></div></div>`;
  longPress($('#setProf'),()=>{if(EDIT())editMe()});bindModeRow();
  $('#setChats').onclick=openTheme}
 function openStarred(){auxKind=null;const list=[];S.chats.forEach(c=>c.messages.forEach(m=>{if(m.starred)list.push([c,m])}));
@@ -1025,7 +1051,7 @@ function renderStudio(){const st=$('#studio');
  <div class="card"><h4>My profile</h4><div class="avedit">${avatarHTML(S.me,64)}<div class="btns" style="margin:0"><button class="sbtn sm" id="stMeAv">Photo</button><button class="sbtn sm" id="stMeAvX">Remove</button></div></div>
   <label>My name</label><input type="text" data-me="name" value="${esc(S.me.name)}"><label>About</label><input type="text" data-me="about" value="${esc(S.me.about)}"></div>
  <div class="card"><h4>Behaviour</h4>
-  <div class="g2"><div><label>Theme</label>${sel_('theme',[['auto','System'],['light','Light'],['dark','Dark']],S.settings.theme)}</div><div><label>Clock</label>${sel_('h24',[['false','12-hour (6:42 pm)'],['true','24-hour (18:42)']],S.settings.h24)}</div></div>
+  <div class="g2"><div><label>Theme</label>${sel_('theme',[['auto','System'],['light','Light'],['dark','Dark']],S.settings.theme)}</div><div><label>Renaming a sender</label>${sel_('renameScope',[['one','Only that message'],['all','Every message with same name']],S.settings.renameScope)}</div><div><label>Clock</label>${sel_('h24',[['false','12-hour (6:42 pm)'],['true','24-hour (18:42)']],S.settings.h24)}</div></div>
   <div class="g3"><div><label>Delivered after (s)</label><input type="number" step="0.1" data-k="d1" value="${S.settings.d1}"></div><div><label>Read after (s)</label><input type="number" step="0.1" data-k="d2" value="${S.settings.d2}"></div><div><label>Final tick</label>${sel_('finalTick',[['sent','Sent ✓'],['delivered','Delivered ✓✓'],['read','Read (blue)']],S.settings.finalTick)}</div></div>
   <div class="ckrow"><label class="ck"><input type="checkbox" data-k="autoReply" ${S.settings.autoReply?'checked':''}>Scripted auto-replies</label><label class="ck"><input type="checkbox" data-k="typingBubble" ${S.settings.typingBubble?'checked':''}>Typing bubble</label><label class="ck"><input type="checkbox" data-k="enc" ${S.settings.enc?'checked':''}>Encryption notice in chats</label><label class="ck"><input type="checkbox" data-k="showPhone" ${S.settings.showPhone?'checked':''}>Show phone next to group names</label></div>
   <div class="hint">Tips while recording:<br>• Long-press <b>Send</b> → sends the typed text as the other person (in groups you pick who).<br>• Swipe a message right → reply. Long-press a message → react / star / delete / edit.<br>• Hold the mic → voice note. Long-press the chat name → edit that chat here.<br>• Settings → <b>Edit mode</b> on: long-press anything to edit it in place. Turn it off (Demo mode) before recording.<br>• In Edit mode, long-press the <b>Chatly</b> title → open this Studio.</div></div>
@@ -1112,16 +1138,17 @@ const EDIT=()=>!!S.settings.editMode;
 let sendAs='me',auxKind=null;
 function renderPill(){const p=$('#editPill');if(p)p.remove()}
 function setMode(on){S.settings.editMode=on;save();if(!on)sendAs='me';renderPill();refreshAll();toast(on?'Edit mode on':'Demo mode on')}
-function bindModeRow(){const r=$('#modeRow');if(r)r.onclick=()=>setMode(!EDIT())}
+function bindModeRow(){const r=$('#modeRow');if(r)r.onclick=()=>setMode(!EDIT());const pr=$('#peopleRow');if(pr)pr.onclick=openPeople;const sr=$('#scopeRow');if(sr)sr.onclick=()=>dialog('Renaming a sender changes','',[['Only that message',()=>{S.settings.renameScope='one';save();refreshAll()}],['Every message with the same name',()=>{S.settings.renameScope='all';save();refreshAll()}],['Cancel']])}
 function renderAsChip(){let ch=$('#asChip');$('#chat').classList.toggle('editing',EDIT()&&!!cur);if(!EDIT()||!cur){if(ch)ch.remove();return}if(!ch){ch=document.createElement('button');ch.id='asChip';$('#composer').appendChild(ch);ch.onpointerdown=e=>e.preventDefault();ch.onclick=()=>{const c=cur;const opts=[['me','You'],...(c.type==='group'?c.members.map(x=>[x.id,x.name]):[['them',c.name]])];menu(opts.map(o=>[(o[0]===sendAs?'✓ ':'')+o[1],()=>{sendAs=o[0];renderAsChip()}]),'top:auto;bottom:120px;left:10px;right:auto')}}
  ch.textContent='Sending as: '+(sendAs==='me'?'You':member(cur,sendAs).name)+' ▾'}
-function refreshAll(){renderHome();if(cur){renderChatHead();renderMsgs(true);renderComposer()}if($('#info').classList.contains('show'))renderInfo();if(auxKind==='settings')fillSettings();if(auxKind==='theme')fillTheme()}
+function refreshAll(){renderHome();if(cur){renderChatHead();renderMsgs(true);renderComposer()}if($('#info').classList.contains('show'))renderInfo();if(auxKind==='settings')fillSettings();if(auxKind==='theme')fillTheme();if(auxKind==='people')fillPeople()}
 function fieldHTML(f,i){const v=f.val??'';const lab=f.label?`<label>${esc(f.label)}</label>`:'';
  switch(f.type){
   case 'area':return lab+`<textarea data-f="${i}" rows="3">${esc(v)}</textarea>`;
   case 'select':return lab+`<select data-f="${i}">${f.opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
   case 'day':return lab+`<select data-f="${i}">${DAYOPTS.map(o=>`<option value="${o[0]}" ${+o[0]===+v?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
   case 'time':return lab+`<input type="time" data-f="${i}" value="${esc(v)}">`;
+  case 'dp':return lab+dpFieldHTML(i,v,f.name);
   case 'num':return lab+`<input type="number" data-f="${i}" value="${esc(v)}">`;
   case 'check':return `<label><input type="checkbox" data-f="${i}" ${v?'checked':''}>${esc(f.label)}</label>`;
   case 'color':return lab+`<div class="efcol"><input type="color" value="${/^#[0-9a-f]{6}$/i.test(v)?v:'#1f7aec'}" data-cp="${i}"><input type="text" data-f="${i}" value="${esc(v)}"></div>`;
@@ -1132,7 +1159,7 @@ function formSheet(title,fields,onSave,actions=[]){
   if(f.half&&fields[i+1]&&fields[i+1].half){h+=`<div class="efg"><div>${fieldHTML(f,i)}</div><div>${fieldHTML(fields[i+1],i+1)}</div></div>`;i+=2;continue}
   h+=fieldHTML(f,i);i++}
  sheet(`<div class="ef"><div class="efh"><b>${esc(title)}</b><button class="efsave">Save</button></div>${h}${actions.length?`<div class="efacts">${actions.map((a,j)=>`<button data-a="${j}" class="${a[2]||''}">${esc(a[0])}</button>`).join('')}</div>`:''}</div>`,o=>{
-  o.querySelectorAll('[data-cp]').forEach(cp=>cp.oninput=()=>{o.querySelector(`[data-f="${cp.dataset.cp}"]`).value=cp.value});
+  bindDp(o);o.querySelectorAll('[data-cp]').forEach(cp=>cp.oninput=()=>{o.querySelector(`[data-f="${cp.dataset.cp}"]`).value=cp.value});
   o.querySelector('.efsave').onclick=()=>{const vals={};fields.forEach((f,k)=>{const el=o.querySelector(`[data-f="${k}"]`);if(!el)return;vals[f.k]=f.type==='check'?el.checked:f.type==='num'?(parseFloat(el.value)||0):f.type==='day'?parseInt(el.value):el.value});back(()=>{onSave(vals);save();refreshAll()})};
   o.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const a=actions[b.dataset.a];back(()=>{a[1]();save();refreshAll()})})})}
 function photoActs(obj,key,max){return [['Change photo',()=>pickFile('#fileImg',async f=>{obj[key||'avatar']=await resizeImg(f,max||256,.85);save();refreshAll()})],...(obj[key||'avatar']?[['Remove photo',()=>{obj[key||'avatar']=null}]]:[])]}
@@ -1142,7 +1169,7 @@ function editMsg(c,m){const g=c.type==='group';const mine=m.from==='me';const id
  const pr=c.messages.slice(0,idx).filter(x=>x.type!=='system');
  const f=[];
  if(m.type==='voice')f.push({k:'dur',label:'Voice note duration (m:ss)',val:m.dur||'0:05'});else if(m.type!=='deleted')f.push({k:'text',label:m.type==='image'?'Caption':'Message text',type:'area',val:m.text});
- if(m.from!=='me'&&m.from!=='sys')f.push({k:'_sname',label:'Sender name (renames them everywhere)',val:g?member(c,m.from).name:c.name});
+ if(m.from!=='me'&&m.from!=='sys')f.push({k:'_sname',label:S.settings.renameScope==='all'?'Sender name (changes every message showing this name)':'Sender name (changes only this message)',val:senderName(c,m)});
  f.push({k:'from',label:'From',type:'select',opts:fromOpts,val:m.from,half:1},{k:'type',label:'Type',type:'select',opts:[['text','Text'],['image','Photo'],['voice','Voice note'],['deleted','Deleted'],['system','System line']],val:m.type,half:1});
  f.push({k:'day',label:'Day',type:'day',val:m.day|0,half:1},{k:'t',label:'Time',type:'time',val:m.t,half:1});
  if(m.type!=='system'){
@@ -1157,12 +1184,13 @@ function editMsg(c,m){const g=c.type==='group';const mine=m.from==='me';const id
  if(m.type==='image')acts.push(['Choose photo',()=>pickFile('#fileImg',async fl=>{m.img=await resizeImg(fl,1100,.8);save();refreshAll()})]);
  acts.push(['Delete',()=>{c.messages.splice(c.messages.indexOf(m),1)},'d']);
  formSheet('Edit message',f,v=>{
-  if(v._sname&&v._sname.trim()){if(g){const mb=c.members.find(x=>x.id===m.from);if(mb)mb.name=v._sname.trim()}else c.name=v._sname.trim()}
+  const fromBefore=m.from;
   if('text' in v)m.text=v.text;if('dur' in v)m.dur=v.dur;m.day=v.day;m.t=v.t||m.t;
   let from=v.from,type=v.type;if(from==='sys')type='system';else if(type==='system'){if(m.type==='system')type='text';else from='sys'}
   if(type==='system')from='sys';m.from=from;m.type=type;if(from==='me'&&!m.status)m.status='read';
   if('status' in v)m.status=v.status;
   if('reacts' in v){try{m.reacts=[...new Intl.Segmenter().segment(v.reacts)].map(x=>x.segment).filter(x=>x.trim())}catch(e){m.reacts=[...v.reacts].filter(x=>x.trim())}}
+  if(v._sname&&v._sname.trim()&&m.from===fromBefore&&m.from!=='me'&&m.from!=='sys')renameSender(c,m,v._sname.trim());
   if('replyTo' in v)m.replyTo=v.replyTo||null;['starred','edited','forwarded','heard'].forEach(k=>{if(k in v)m[k]=v[k]});
   if(m.type==='image'&&!m.img)setTimeout(()=>pickFile('#fileImg',async fl=>{m.img=await resizeImg(fl,1100,.8);save();refreshAll()}),80);
  },acts)}
@@ -1171,12 +1199,13 @@ function editChatInfo(c){if(!c)return;const g=c.type==='group';const f=[{k:'name
  if(!g)f.push({k:'phone',label:'Phone',val:c.phone||''});f.push({k:'about',label:g?'Group description':'About',val:c.about||''});
  if(!g){f.push({k:'status',label:'Header status',type:'select',opts:[['online','online'],['typing','typing…'],['lastseen','last seen …'],['custom','custom text'],['none','(nothing)']],val:c.status||'none'});
   f.push({k:'lsDay',label:'Last seen day',type:'day',val:c.lsDay|0,half:1},{k:'lsTime',label:'Last seen time',type:'time',val:c.lsTime||'09:00',half:1},{k:'customStatus',label:'Custom status text',val:c.customStatus||'',ph:'e.g. tap here for contact info'})}
+ f.push({k:'avatar',label:'Profile photo',type:'dp',val:c.avatar||'',name:c.name});
  f.push({k:'unread',label:'Unread count (badge)',type:'num',val:c.unread||0});
  f.push({k:'_script',label:g?'Scripted replies – one per line as  Name: message  (start a line with + to send it right after the previous one)':'Scripted replies – one per line (start a line with + to send it right after the previous one)',type:'area',val:scriptToText(c)});
  ['pinned','muted','archived','favourite'].forEach(k=>f.push({k,label:k[0].toUpperCase()+k.slice(1),type:'check',val:c[k]}));f.push({k:'initials',label:'Letter avatar',type:'check',val:c.initials});if(!g)f.push({k:'hasStatus',label:'Has status update',type:'check',val:c.hasStatus});
- const acts=[...photoActs(c)];if(g)acts.push(['+ Add member',()=>{c.members.push({id:'m'+uid(),name:'Member '+(c.members.length+1),color:COLORS[c.members.length%COLORS.length],phone:''})}]);
+ const acts=[];if(g)acts.push(['+ Add member',()=>{c.members.push({id:'m'+uid(),name:'Member '+(c.members.length+1),color:COLORS[c.members.length%COLORS.length],phone:''})}]);
  acts.push(['Open in Studio',()=>openStudio(c.id)],['Delete chat',()=>{if(cur===c){back(()=>{S.chats=S.chats.filter(x=>x!==c);save();renderHome()})}else S.chats=S.chats.filter(x=>x!==c)},'d']);
- formSheet(g?'Edit group':'Edit contact',f,v=>{const sc=v._script;delete v._script;Object.keys(v).forEach(k=>c[k]=v[k]);c.unread=parseInt(c.unread)||0;c.script=textToScript(c,sc)},acts)}
+ formSheet(g?'Edit group':'Edit contact',f,v=>{const sc=v._script;delete v._script;Object.keys(v).forEach(k=>c[k]=v[k]);c.avatar=c.avatar||null;c.unread=parseInt(c.unread)||0;c.script=textToScript(c,sc)},acts)}
 function scriptToText(c){return (c.script||[]).map(it=>(it.cont?'+ ':'')+(c.type==='group'?member(c,it.from).name+': ':'')+it.text).join('\n')}
 function textToScript(c,t){return (t||'').split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{let cont=false;if(line.startsWith('+')){cont=true;line=line.slice(1).trim()}let from='them';
  if(c.type==='group'){from=c.members[0].id;const i=line.indexOf(':');if(i>0){const nm=line.slice(0,i).trim().toLowerCase();const mb=c.members.find(x=>x.name.toLowerCase()===nm);if(mb){from=mb.id;line=line.slice(i+1).trim()}}}
@@ -1203,9 +1232,9 @@ function fillTheme(){const md=themeEditMode;const v=themeVals(md);const ov=((S.s
  $('#thImp').onclick=()=>pickFile('#fileAny',f=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.colors)throw 0;S.settings.colors=d.colors;save();applyTheme();fillTheme();toast('Theme imported')}catch(e){toast('Invalid theme file')}};r.readAsText(f)});
  $('#thMore').onclick=()=>menu([['Reset all colours',()=>{S.settings.colors={};save();applyTheme();fillTheme()}]]);
 }
-function editMember(c,i){const x=c.members[i];formSheet('Edit member',[{k:'name',label:'Name',val:x.name},{k:'phone',label:'Phone',val:x.phone||''},{k:'about',label:'About',val:x.about||''},{k:'color',label:'Name colour in bubbles',type:'color',val:x.color}],v=>Object.assign(x,v),
- [...photoActs(x),['Remove member',()=>{if(c.members.length>1)c.members.splice(i,1)},'d']])}
-function editMe(){formSheet('My profile',[{k:'name',label:'Name',val:S.me.name},{k:'about',label:'About',val:S.me.about},{k:'phone',label:'Phone',val:S.me.phone||''}],v=>Object.assign(S.me,v),photoActs(S.me))}
+function editMember(c,i){const x=c.members[i];formSheet('Edit member',[{k:'name',label:'Name',val:x.name},{k:'phone',label:'Phone',val:x.phone||''},{k:'about',label:'About',val:x.about||''},{k:'color',label:'Name colour in bubbles',type:'color',val:x.color},{k:'avatar',label:'Profile photo',type:'dp',val:x.avatar||'',name:x.name}],v=>{Object.assign(x,v);x.avatar=x.avatar||null},
+ [['Remove member',()=>{if(c.members.length>1)c.members.splice(i,1)},'d']])}
+function editMe(){formSheet('My profile',[{k:'name',label:'Name',val:S.me.name},{k:'about',label:'About',val:S.me.about},{k:'phone',label:'Phone',val:S.me.phone||''},{k:'avatar',label:'Profile photo',type:'dp',val:S.me.avatar||'',name:S.me.name}],v=>{Object.assign(S.me,v);S.me.avatar=S.me.avatar||null})}
 function editStatus(c){formSheet('Status of '+c.name,[{k:'statusText',label:'Status text',type:'area',val:c.statusText||''},{k:'statusColor',label:'Background colour',type:'color',val:c.statusColor||'#1f7aec'},{k:'statusTime',label:'Time shown (e.g. Today, 8:00 am)',val:c.statusTime||''},{k:'statusSeen',label:'Already seen',type:'check',val:c.statusSeen}],v=>Object.assign(c,v),
  [...photoActs(c,'statusImg',1100).map(a=>[a[0].replace('photo','status photo'),a[1]]),['Remove status',()=>{c.hasStatus=false},'d']])}
 function editAddStatus(){const opts=S.chats.filter(c=>c.type==='dm'&&!c.hasStatus).map(c=>[c.id,c.name]);if(!opts.length){toast('All contacts already have a status');return}
@@ -1216,6 +1245,31 @@ function editCall(cl){if(!cl)return;formSheet('Edit call',[{k:'chat',label:'Cont
  [['+ Add call',()=>{S.calls.push({id:uid(),chat:cl.chat,dir:'in',video:false,day:0,t:nowHM()})}],['Delete',()=>{S.calls=S.calls.filter(x=>x!==cl)},'d']])}
 function bindInfoEdit(c){const t=$('#iTop');if(t)longPress(t,()=>{if(EDIT())editChatInfo(c)});const me=$('#iMe');if(me)longPress(me,()=>{if(EDIT())editMe()});
  $('#info').querySelectorAll('[data-mem]').forEach(r=>longPress(r,()=>{if(EDIT())editMember(c,+r.dataset.mem)}))}
+
+function baseName(c,m){return c.type==='group'?member(c,m.from).name:c.name}
+function renameSender(c,m,nw){const old=senderName(c,m);if(nw===old)return;
+ if(S.settings.renameScope!=='all'){if(nw===baseName(c,m))delete m.sname;else m.sname=nw;return}
+ const targets=c.messages.filter(x=>x.from!=='me'&&x.from!=='sys'&&senderName(c,x)===old);
+ const renameBase=new Set();targets.forEach(x=>{if(x.sname)x.sname=nw;else renameBase.add(x.from)});
+ if(c.type==='group'){c.members.forEach(mb=>{if(renameBase.has(mb.id)||mb.name===old)mb.name=nw})}else if(renameBase.size||c.name===old)c.name=nw;
+ c.messages.forEach(x=>{if(x.sname&&x.from!=='me'&&x.sname===baseName(c,x))delete x.sname})}
+function dpFieldHTML(i,val,name){const cur=imgSrc(val)||personPhoto(name);
+ return `<input type="hidden" data-f="${i}" value="${esc(val||'')}"><div class="dpg" data-dpg="${i}"><button data-dpv="" class="${!val?'on':''}"><div class="av" style="width:46px;height:46px"><svg viewBox="0 0 24 24"><path d="${P.person}"/></svg></div><small>${name&&personPhoto(name)&&!val?'By name':'None'}</small></button>${DPS.map((d,j)=>`<button data-dpv="dp:${j+1}" class="${val==='dp:'+(j+1)?'on':''}"><img src="${d[1]}"><small>${d[0]}</small></button>`).join('')}<button data-dpup class="${val&&!/^dp:/.test(val)?'on':''}">${val&&!/^dp:/.test(val)?`<img src="${val}">`:`<div class="av" style="width:46px;height:46px;background:var(--chipbg)">${ic('cam',22,'fill:var(--sec);width:22px;height:22px')}</div>`}<small>Gallery</small></button></div>`}
+function bindDp(o){o.querySelectorAll('[data-dpg]').forEach(g=>{const inp=o.querySelector(`[data-f="${g.dataset.dpg}"]`);
+ g.querySelectorAll('[data-dpv]').forEach(b=>b.onclick=()=>{inp.value=b.dataset.dpv;g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
+ const up=g.querySelector('[data-dpup]');up.onclick=()=>pickFile('#fileImg',async f=>{const v=await resizeImg(f,256,.85);inp.value=v;up.innerHTML=`<img src="${v}"><small>Gallery</small>`;g.querySelectorAll('button').forEach(x=>x.classList.remove('on'));up.classList.add('on')})})}
+function namesInApp(){const set=new Map();const add=n=>{n=String(n||'').trim();if(n&&!set.has(normName(n)))set.set(normName(n),n)};
+ S.chats.forEach(c=>{add(c.name);(c.members||[]).forEach(m=>add(m.name));c.messages.forEach(m=>{if(m.sname)add(m.sname)})});(S.people||[]).forEach(p=>add(p.name));return [...set.values()].sort((a,b)=>a.localeCompare(b))}
+function editPerson(name){S.people=S.people||[];let p=S.people.find(x=>normName(x.name)===normName(name));
+ formSheet('Profile photo',[{k:'name',label:'Name (any chat, group or member with this name uses this photo)',val:name},{k:'avatar',label:'Photo',type:'dp',val:p?p.avatar:''}],v=>{
+  const nm=v.name.trim()||name;if(!p){p={name:nm,avatar:null};S.people.push(p)}p.name=nm;p.avatar=v.avatar||null;if(!p.avatar)S.people=S.people.filter(x=>x!==p)})}
+function openPeople(){auxKind='people';fillPeople();showScreen('aux',()=>{auxKind=null})}
+function fillPeople(){const names=namesInApp();
+ $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title" style="font-size:19px">Profile photos<div style="font-size:13px;color:var(--sec);font-weight:400">Set a photo once per name – it shows everywhere</div></div></div><div class="scroll">
+ ${names.map(n=>`<div class="crow" data-pn="${esc(n)}">${avatarHTML({name:n},46)}<div class="cmain"><div class="nm" style="font-size:16px;font-weight:500">${esc(n)}</div><div style="color:var(--sec);font-size:13.5px">${personPhoto(n)?'Photo set':'No photo'}</div></div>${ic('edit',20,'fill:var(--sec)')}</div>`).join('')}
+ <div style="height:100px"></div></div><button class="fab" id="pAdd" style="bottom:24px">${ic('add')}</button>`;
+ $('#aux').querySelectorAll('[data-pn]').forEach(r=>r.onclick=()=>editPerson(r.dataset.pn));
+ $('#pAdd').onclick=()=>dialog('Add a name','Type a name, then choose its photo',[['Cancel'],['Next',v=>{if(v&&v.trim())setTimeout(()=>editPerson(v.trim()),60)}]],true,'')}
 
 /* ================= INIT ================= */
 $('#search').addEventListener('input',renderChats);
