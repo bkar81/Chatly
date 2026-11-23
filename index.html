@@ -665,7 +665,7 @@ function renderHome(){
   acts.innerHTML=tab==='chats'?`<button class="ibtn" id="hCam">${ic('cam')}</button><button class="ibtn" id="hMore">${ic('more')}</button>`:
    tab==='communities'?`<button class="ibtn" id="hMore">${ic('more')}</button>`:`<button class="ibtn" id="hCam">${ic(tab==='updates'?'search':'search')}</button><button class="ibtn" id="hMore">${ic('more')}</button>`;
   $('#hMore').onclick=homeMenu; const hc=$('#hCam'); if(hc)hc.onclick=()=>tab==='chats'?pickFile('#fileCam',()=>{}):0;
-  longPress($('#homeTitle'),()=>{if(EDIT()&&tab==='chats')menu([['Rename app',renameApp],['Open Studio',()=>openStudio()],['Theme colours',openTheme]])});
+  const ht=$('#homeTitle');if(!ht._lpBound){ht._lpBound=1;longPress(ht,()=>{if(EDIT()&&tab==='chats'&&!chatSel.size&&!showArchived&&!document.querySelector('.overlay'))menu([['Rename app',renameApp],['Open Studio',()=>openStudio()],['Theme colours',openTheme]])})}
  }
  // tabs
  ['chats','updates','communities','calls'].forEach(t=>$('#tab-'+t).classList.toggle('on',t===tab));
