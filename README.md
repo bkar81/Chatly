@@ -14,6 +14,14 @@ Settings → **Edit mode** switches between the two modes.
 - Long-press a message to edit its text, sender (and the sender's name), time, day, ticks and more. Long-press a chat title to edit the contact or group, including its scripted replies.
 - **Demo mode**: no editing at all, and the app behaves like a normal messenger. Switch to it before recording.
 
+## Reordering (Edit mode)
+- **Long-press, then drag** a chat on the home screen or a message inside a chat to move it. Long-press and let go without moving opens the editor.
+- Pinned chats stay at the top. Once you've reordered, a chat jumps to the top whenever a new message is sent or received in it, like a real messenger.
+- A message dropped under a different date label takes that day. Times stay as they are, so edit them if needed.
+
+## Days
+Every day picker offers Today, Yesterday, the last week's weekday names, or **X days ago** with any number. A preview shows exactly how it will appear.
+
 ## Profile photos & renaming
 - Settings → **Profile photos**: set a photo once per *name*. Any chat, group, member or message showing that name uses it. You can pick one of 10 built-in sample pictures or a photo from your gallery.
 - Settings → **Renaming a sender changes**: choose *Only that message* or *Every message with the same name*. This applies when you edit the sender name in a message (Edit mode → long-press a message).

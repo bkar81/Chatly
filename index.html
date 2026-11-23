@@ -69,6 +69,7 @@ svg{display:block}
 .av{border-radius:50%;flex:none;overflow:hidden;background:#dfe5e7;color:#fff;display:flex;align-items:center;justify-content:center;position:relative}
 [data-theme=dark] .av{background:#6a7175}
 .av img{width:100%;height:100%;object-fit:cover}
+img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
 .av svg{width:62%;height:62%;fill:#fff}
 .av .ini{font-weight:500;color:#fff}
 .selck{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center}
@@ -298,6 +299,13 @@ svg{display:block}
 .dpg button.on{border-color:var(--accent);background:var(--chipbg)}
 .dpg img{width:46px;height:46px;border-radius:50%;object-fit:cover}
 .dpg small{font-size:11px;color:var(--sec)}
+.dpx{display:flex;gap:8px;align-items:center;margin-top:6px;font-size:14px;color:var(--sec)}
+.dpx input{width:96px!important}
+.dprev{font-size:12px;color:var(--sec);margin-top:4px;line-height:1.3}
+.crow.lifted{background:var(--bg);box-shadow:0 6px 18px rgba(0,0,0,.22);z-index:5;border-radius:12px}
+.row.lifted,.sys.lifted{z-index:5}
+.row.lifted .bub,.sys.lifted{box-shadow:0 8px 20px rgba(0,0,0,.28);transform:scale(1.02)}
+.dragging-on{touch-action:none}
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#3b4a54;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:90;white-space:nowrap}
 
 /* info */
@@ -358,7 +366,8 @@ svg{display:block}
 #studio textarea{resize:vertical;min-height:60px}
 #studio input:focus,#studio select:focus,#studio textarea:focus{border-color:#8ab4f8}
 #studio .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#studio .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+#studio .g3{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px}
+#studio .dprev{color:#9aa0a6}
 #studio .ck{display:flex;align-items:center;gap:8px;font-size:14px;color:#e8eaed;margin:8px 0 0}
 #studio .ck input{width:18px;height:18px;accent-color:#8ab4f8}
 #studio .ckrow{display:flex;flex-wrap:wrap;gap:4px 16px}
@@ -524,7 +533,7 @@ const WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'
 const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function dayLabel(day){if(day==0)return 'Today';if(day==1)return 'Yesterday';const d=dayStart(day);if(day<7)return WD[d.getDay()];return d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear()}
 function listTime(day,t){if(day==0)return fmtTime(t);if(day==1)return 'Yesterday';const d=dayStart(day);if(day<7)return WD[d.getDay()];return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2)}
-function lastSeenText(c){const d=c.lsDay|0;const t=fmtTime(c.lsTime||'09:00');if(d==0)return 'last seen today at '+t;if(d==1)return 'last seen yesterday at '+t;const dd=dayStart(d);return 'last seen '+dd.getDate()+' '+MO[dd.getMonth()].slice(0,3)+' at '+t}
+function lastSeenText(c){const d=c.lsDay|0;const t=fmtTime(c.lsTime||'09:00');if(d==0)return 'last seen today at '+t;if(d==1)return 'last seen yesterday at '+t;const dd=dayStart(d);if(d<7)return 'last seen '+WD[dd.getDay()]+' at '+t;return 'last seen '+dd.getDate()+' '+MO[dd.getMonth()].slice(0,3)+' at '+t}
 function linkify(s){return esc(s).replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/g,'<a>$1</a>').replace(/\*([^*\n]+)\*/g,'<b>$1</b>').replace(/(^|\s)_([^_\n]+)_(?=\s|$)/g,'$1<i>$2</i>').replace(/~([^~\n]+)~/g,'<s>$1</s>')}
 function emojiCount(s){s=(s||'').trim();if(!s||s.length>40)return 0;try{const seg=[...new Intl.Segmenter().segment(s)].map(x=>x.segment).filter(x=>x.trim());if(seg.length>3)return 0;for(const g of seg)if(!/\p{Extended_Pictographic}|\p{Regional_Indicator}/u.test(g))return 0;return seg.length}catch(e){return 0}}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),1800)}
@@ -717,8 +726,10 @@ function visibleChats(){
  if(!showArchived){if(filter==='unread')l=l.filter(c=>c.unread>0);if(filter==='fav')l=l.filter(c=>c.favourite);if(filter==='groups')l=l.filter(c=>c.type==='group');}
  if(q)l=S.chats.filter(c=>c.name.toLowerCase().includes(q)||c.messages.some(m=>(m.text||'').toLowerCase().includes(q)));
  const key=c=>{const m=lastMsg(c);return m?tsOf(m.day,m.t):0};
- return l.slice().sort((a,b)=>(!!b.pinned-!!a.pinned)||key(b)-key(a));
+ const ord=c=>c.ord===undefined||c.ord===null?Infinity:c.ord;
+ return l.slice().sort((a,b)=>(!!b.pinned-!!a.pinned)||(S.settings.manualOrder?((ord(a)-ord(b))||key(b)-key(a)):key(b)-key(a)));
 }
+function bumpChat(c){if(!S.settings.manualOrder)return;const mn=Math.min(0,...S.chats.filter(x=>x.ord!==undefined&&x.ord!==null).map(x=>x.ord));c.ord=mn-1}
 function chatRowHTML(c){
  const m=lastMsg(c);const un=c.unread>0;let pv='';
  if(c._typing)pv=`<div class="pv typing"><span class="t">${esc(chatSub(c).t)}</span></div>`;
@@ -730,7 +741,7 @@ function chatRowHTML(c){
   pv=`<div class="pv">${pre}${icn}<span class="t" ${m.type==='deleted'?'style="font-style:italic"':''}>${esc(msgPreviewText(m))}</span></div>`}
  else pv='<div class="pv"></div>';
  const icons=`${c.muted?`<span class="ico">${ic('mute')}</span>`:''}${c.pinned&&!showArchived?`<span class="ico">${ic('pin')}</span>`:''}${un?`<span class="badge ${c.muted?'muted':''}">${c.unread}</span>`:''}`;
- return `<div class="crow ${chatSel.has(c.id)?'sel':''}" data-id="${c.id}"><div style="position:relative">${chatAv(c,52)}${chatSel.has(c.id)?`<div class="selck">${ic('check')}</div>`:''}</div><div class="cmain"><div class="l1"><div class="nm">${esc(c.name)}</div><div class="tm ${un&&!c.muted?'un':''}">${m?listTime(m.day,m.t):''}</div></div><div class="l2">${pv}${icons}</div></div></div>`;
+ return `<div class="crow ${chatSel.has(c.id)?'sel':''}" data-id="${c.id}" data-pin="${c.pinned?1:0}"><div style="position:relative">${chatAv(c,52)}${chatSel.has(c.id)?`<div class="selck">${ic('check')}</div>`:''}</div><div class="cmain"><div class="l1"><div class="nm">${esc(c.name)}</div><div class="tm ${un&&!c.muted?'un':''}">${m?listTime(m.day,m.t):''}</div></div><div class="l2">${pv}${icons}</div></div></div>`;
 }
 function renderChats(){
  const ch=[['all','All'],['unread','Unread'+(S.chats.filter(c=>c.unread>0&&!c.archived).length?' '+S.chats.filter(c=>c.unread>0&&!c.archived).length:'')],['fav','Favourites'],['groups','Groups']];
@@ -743,7 +754,7 @@ function renderChats(){
  const list=visibleChats();
  $('#chatList').innerHTML=list.map(chatRowHTML).join('')+(list.length?`<div class="listend">${ic("lock",12)} Your personal messages are <span style="color:var(--accent)">end-to-end encrypted</span></div>`:`<div class="empty">No chats</div>`);
  $('#chatList').querySelectorAll('.crow').forEach(r=>{const id=r.dataset.id;
-  longPress(r,()=>{if(EDIT()){editChatInfo(chatById(id));return}if(!chatSel.size)pushLayer(()=>{chatSel.clear();renderHome()});chatSel.add(id);renderHome();if(navigator.vibrate)navigator.vibrate(20)});
+  longPress(r,()=>{if(EDIT())return;if(!chatSel.size)pushLayer(()=>{chatSel.clear();renderHome()});chatSel.add(id);renderHome();if(navigator.vibrate)navigator.vibrate(20)});
   r.addEventListener('click',()=>{if(r._lp){r._lp=0;return}if(chatSel.size){chatSel.has(id)?chatSel.delete(id):chatSel.add(id);if(!chatSel.size)back();else renderHome();return}openChat(id)})});
 }
 function openArchived(){showArchived=true;$('#homeTitle').innerHTML=`<span style="display:flex;align-items:center;gap:14px"><button class="ibtn" id="arBack">${ic('back')}</button>Archived</span>`;
@@ -826,7 +837,7 @@ const msgById=id=>cur&&cur.messages.find(m=>m.id===id);
 function bubbleMetaHTML(m){const st=m.starred?ic('star',11,'fill:currentColor'):'';const ed=m.edited?'<span>Edited</span>':'';return `<span class="meta">${st}${ed}<span>${fmtTime(m.t)}</span>${m.from==='me'?tickHTML(m.status):''}</span>`}
 function spacerW(m){let w=48+(S.settings.h24?-12:0);if(m.from==='me')w+=20;if(m.edited)w+=40;if(m.starred)w+=14;return w}
 function msgHTML(c,m,prev){
- if(m.type==='system')return `<div class="sys">${esc(m.text)}</div>`;
+ if(m.type==='system')return `<div class="sys" data-id="${m.id}">${esc(m.text)}</div>`;
  const out=m.from==='me';const first=!prev||prev.type==='system'||prev.from!==m.from||prev.day!==m.day||(prev.sname||'')!==(m.sname||'');
  const shown=grp0(c,m);
  const grp=c.type==='group'&&!out;const mem=grp?member(c,m.from):null;
@@ -866,12 +877,12 @@ function updateTick(m){const r=$(`#msgs .row[data-id="${m.id}"]`);if(!r)return;c
 (function(){const box=$('#msgs');let st=null;
  box.addEventListener('pointerdown',e=>{const row=e.target.closest('.row[data-id]');if(!row)return;const q=e.target.closest('.quote');
   st={row,x:e.clientX,y:e.clientY,lp:false,sw:false,dx:0,q,play:e.target.closest('.play')};
-  st.t=setTimeout(()=>{if(!st||st.sw)return;st.lp=true;if(navigator.vibrate)navigator.vibrate(20);if(EDIT()){const mm=msgById(row.dataset.id);if(mm)editMsg(cur,mm)}else toggleSel(row.dataset.id,true)},450)});
- box.addEventListener('pointermove',e=>{if(!st)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
+  st.t=setTimeout(()=>{if(!st||st.sw||EDIT())return;st.lp=true;if(navigator.vibrate)navigator.vibrate(20);if(EDIT()){const mm=msgById(row.dataset.id);if(mm)editMsg(cur,mm)}else toggleSel(row.dataset.id,true)},450)});
+ box.addEventListener('pointermove',e=>{if(!st)return;if(dragConsumed){clearTimeout(st.t);st=null;return}const dx=e.clientX-st.x,dy=e.clientY-st.y;
   if(!st.sw&&Math.abs(dy)>10){clearTimeout(st.t);st=null;return}
   if(!st.sw&&dx>12&&Math.abs(dx)>Math.abs(dy)*1.5&&!sel.size){st.sw=true;clearTimeout(st.t)}
   if(st.sw){st.dx=Math.max(0,Math.min(dx,90));const w=st.row.querySelector('.bwrap');w.style.transform=`translateX(${st.dx}px)`;const si=st.row.querySelector('.swipeicon');si.style.opacity=Math.min(1,st.dx/60)}});
- const end=e=>{if(!st)return;clearTimeout(st.t);const s=st;st=null;
+ const end=e=>{if(!st)return;clearTimeout(st.t);const s=st;st=null;if(dragConsumed)return;
   if(s.sw){const w=s.row.querySelector('.bwrap');w.style.transition='transform .15s';w.style.transform='';s.row.querySelector('.swipeicon').style.opacity=0;setTimeout(()=>w.style.transition='',160);if(s.dx>55){setReply(s.row.dataset.id);if(navigator.vibrate)navigator.vibrate(15)}return}
   if(s.lp)return;if(e.type==='pointercancel')return;
   if(sel.size){toggleSel(s.row.dataset.id);return}
@@ -954,11 +965,11 @@ function startRec(){const r=document.createElement('div');r.className='recbar';r
  rec={el:r,t0:Date.now(),iv:setInterval(()=>{const s=Math.floor((Date.now()-rec.t0)/1000);$('#recT').textContent=Math.floor(s/60)+':'+pad(s%60)},250)}}
 function stopRec(cancel){if(!rec)return;clearInterval(rec.iv);rec.el.remove();$('#sendBtn').classList.remove('rec');const s=Math.round((Date.now()-rec.t0)/1000);rec=null;if(!cancel&&s>=1)addMine({type:'voice',dur:Math.floor(s/60)+':'+pad(s%60)})}
 function sendText(){const v=ta.value.replace(/\s+$/,'');if(!v.trim()&&!editId)return;
- if(EDIT()&&sendAs!=='me'&&!editId){const c=cur;ta.value='';autoGrow();const m={id:uid(),from:sendAs,text:v,day:0,t:nowHM(),type:'text'};if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);save();renderMsgs();renderComposer();return}
+ if(EDIT()&&sendAs!=='me'&&!editId){const c=cur;ta.value='';autoGrow();const m={id:uid(),from:sendAs,text:v,day:0,t:nowHM(),type:'text'};if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);bumpChat(c);save();renderMsgs();renderComposer();return}
  if(editId){const m=msgById(editId);if(m&&v.trim()&&v!==m.text){m.text=v;m.edited=true}editId=null;ta.value='';save();renderMsgs(true);renderComposer();autoGrow();return}
  ta.value='';autoGrow();addMine({type:'text',text:v})}
 function addMine(o){const c=cur;const m=Object.assign({id:uid(),from:'me',day:0,t:nowHM(),status:'pending',text:''},o);if(replyTo){m.replyTo=replyTo;replyTo=null}
- c.messages.push(m);c.archived=false;save();renderMsgs();renderComposer();progressTicks(c,m);runScript(c)}
+ c.messages.push(m);c.archived=false;bumpChat(c);save();renderMsgs();renderComposer();progressTicks(c,m);runScript(c)}
 function progressTicks(c,m){const fin=S.settings.finalTick;const order=['pending','sent','delivered','read'];const lim=order.indexOf(fin);
  const step=(st,ms)=>setTimeout(()=>{if(order.indexOf(m.status)>=order.indexOf(st)||order.indexOf(st)>lim)return;m.status=st;save();if(cur===c)updateTick(m)},ms);
  step('sent',350);step('delivered',S.settings.d1*1000);if(fin==='read'&&(c.status==='online'||c._online||c.type==='group'||c.autoRead!==false))step('read',S.settings.d2*1000)}
@@ -970,13 +981,13 @@ function runScript(c){if(!S.settings.autoReply||!c.script||!c.script.length||scr
   setTimeout(()=>{markAllRead(c);c._online=true;c._typing=from;refreshTyping(c);
    const dur=Math.min(4500,900+it.text.length*55);
    setTimeout(()=>{c._typing=null;const m={id:uid(),from,text:it.text,day:0,t:nowHM(),type:it.type||'text'};if(it.type==='voice'){m.dur=it.text||'0:07';m.text=''}c.messages.push(m);
-    if(cur!==c){c.unread=(c.unread||0)+1}save();refreshTyping(c,true);
+    bumpChat(c);if(cur!==c){c.unread=(c.unread||0)+1}save();refreshTyping(c,true);
     clearTimeout(c._onT);c._onT=setTimeout(()=>{c._online=false;if(cur===c)renderChatHead()},12000);
     if(c.script.length&&c.script[0].cont)next();else scriptBusy[c.id]=false},dur)},(it.wait||1.5)*1000)};
  next()}
 function refreshTyping(c,added){if(cur===c){renderChatHead();if(added||S.settings.typingBubble)renderMsgs(true);if(added)scrollBottom()} if(!$('#home').classList.contains('hidden'))renderHome()}
 function sendAsOther(){const c=cur;const v=ta.value.trim();if(!v)return;
- const doSend=from=>{ta.value='';autoGrow();const m={id:uid(),from,text:v,day:0,t:nowHM(),type:'text'};if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);save();renderMsgs();renderComposer()};
+ const doSend=from=>{ta.value='';autoGrow();const m={id:uid(),from,text:v,day:0,t:nowHM(),type:'text'};if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);bumpChat(c);save();renderMsgs();renderComposer()};
  if(c.type==='group'){menu(c.members.map(x=>[x.name,()=>doSend(x.id)]),'top:auto;bottom:70px;right:10px')}else doSend('them')}
 
 /* long press helper */
@@ -1044,6 +1055,12 @@ function openStarred(){auxKind=null;const list=[];S.chats.forEach(c=>c.messages.
 let stView=null;
 function openStudio(chatId){stView=chatId||null;renderStudio();if(!$('#studio').classList.contains('show'))showScreen('studio',()=>{renderHome();if(cur){renderChat()}})}
 function sel_(name,opts,val){return `<select data-k="${name}">${opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(val)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`}
+function dayOptLabel(n){if(n==0)return 'Today';if(n==1)return 'Yesterday';const d=dayStart(n);return WD[d.getDay()]+' · '+d.getDate()+' '+MO[d.getMonth()].slice(0,3)}
+function dayPreview(n){const d=dayStart(n);return 'Shows as "'+dayLabel(n)+'"'+(n>=2&&n<7?' · '+d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear():'')}
+function dayPickerHTML(attr,val){val=Math.max(0,val|0);const isX=val>=7;return `<div class="dayp"><input type="hidden" ${attr} value="${val}"><select data-dsel>${[0,1,2,3,4,5,6].map(n=>`<option value="${n}" ${!isX&&val===n?'selected':''}>${dayOptLabel(n)}</option>`).join('')}<option value="x" ${isX?'selected':''}>X days ago…</option></select><div class="dpx" ${isX?'':'style="display:none"'}><input type="number" min="0" max="3650" inputmode="numeric" data-dnum value="${isX?val:7}"><span>days ago</span></div><div class="dprev">${dayPreview(val)}</div></div>`}
+function bindDayPickers(root){root.querySelectorAll('.dayp').forEach(dp=>{if(dp._b)return;dp._b=1;const hid=dp.querySelector('input[type=hidden]'),sel=dp.querySelector('[data-dsel]'),num=dp.querySelector('[data-dnum]'),x=dp.querySelector('.dpx'),pv=dp.querySelector('.dprev');
+ const upd=()=>{let v;if(sel.value==='x'){x.style.display='';v=Math.max(0,parseInt(num.value)||0)}else{x.style.display='none';v=+sel.value}hid.value=v;pv.textContent=dayPreview(v);hid.dispatchEvent(new Event('change',{bubbles:true}))};
+ sel.onchange=()=>{upd();if(sel.value==='x')setTimeout(()=>num.focus(),50)};num.oninput=upd})}
 const DAYOPTS=Array.from({length:31},(_,i)=>[i,i===0?'Today':i===1?'Yesterday':i+' days ago ('+dayLabel(i)+')']);
 function renderStudio(){const st=$('#studio');
  if(!stView){st.innerHTML=`<div class="shd"><button class="ibtn" onclick="back()">${ic('close')}</button><h3>${esc(appName())} Studio</h3></div><div class="scroll sb">
@@ -1075,7 +1092,7 @@ function renderStudio(){const st=$('#studio');
   ${g?'':`<label>Phone</label><input type="text" data-c="phone" value="${esc(c.phone||'')}">`}
   <label>${g?'Description':'About'}</label><input type="text" data-c="about" value="${esc(c.about||'')}">
   ${g?'':`<label>Header status</label>${sel_('status',[['online','online'],['typing','typing…'],['lastseen','last seen …'],['custom','custom text'],['none','(nothing)']],c.status)}
-  <div class="g2" id="lsBox" ${c.status==='lastseen'?'':'style="display:none"'}><div><label>Last seen day</label>${sel_('lsDay',DAYOPTS,c.lsDay|0)}</div><div><label>Last seen time</label><input type="time" data-c="lsTime" value="${c.lsTime||'09:00'}"></div></div>
+  <div class="g2" id="lsBox" ${c.status==='lastseen'?'':'style="display:none"'}><div><label>Last seen day</label>${dayPickerHTML('data-k="lsDay"',c.lsDay|0)}</div><div><label>Last seen time</label><input type="time" data-c="lsTime" value="${c.lsTime||'09:00'}"></div></div>
   <div id="csBox" ${c.status==='custom'?'':'style="display:none"'}><label>Custom status text</label><input type="text" data-c="customStatus" value="${esc(c.customStatus||'')}" placeholder="e.g. tap here for contact info"></div>`}
   <div class="g2"><div><label>Unread count</label><input type="number" data-c="unread" value="${c.unread||0}"></div><div></div></div>
   <div class="ckrow"><label class="ck"><input type="checkbox" data-c="pinned" ${c.pinned?'checked':''}>Pinned</label><label class="ck"><input type="checkbox" data-c="muted" ${c.muted?'checked':''}>Muted</label><label class="ck"><input type="checkbox" data-c="archived" ${c.archived?'checked':''}>Archived</label><label class="ck"><input type="checkbox" data-c="favourite" ${c.favourite?'checked':''}>Favourite</label>${g?'':`<label class="ck"><input type="checkbox" data-c="hasStatus" ${c.hasStatus?'checked':''}>Has status update</label>`}</div>
@@ -1088,7 +1105,7 @@ function renderStudio(){const st=$('#studio');
   <div class="g2"><div><label>From</label>${sel_('from',fromOpts,m.from)}</div><div><label>Type</label>${sel_('type',[['text','Text'],['image','Photo'],['voice','Voice note'],['deleted','Deleted'],['system','System line']],m.type)}</div></div>
   ${m.type==='voice'?`<label>Duration (m:ss)</label><input type="text" data-m="dur" value="${esc(m.dur||'0:05')}">`:m.type==='deleted'?'':`<label>${m.type==='image'?'Caption':'Text'}</label><textarea data-m="text" rows="2">${esc(m.text||'')}</textarea>`}
   ${m.type==='image'?`<div class="btns">${m.img?`<img src="${m.img}" style="height:60px;border-radius:6px">`:''}<button class="sbtn sm" data-img>Choose photo</button></div>`:''}
-  <div class="g3"><div><label>Day</label>${sel_('day',DAYOPTS.map(o=>[o[0],o[0]<2?o[1]:o[0]+'d ago']),m.day|0)}</div><div><label>Time</label><input type="time" data-m="t" value="${m.t||'09:00'}"></div><div><label>Ticks</label>${mine?sel_('status',[['pending','🕓 Pending'],['sent','✓ Sent'],['delivered','✓✓ Delivered'],['read','✓✓ Read']],m.status||'read'):'<input type="text" disabled value="—">'}</div></div>
+  <div class="g3"><div><label>Day</label>${dayPickerHTML('data-k="day"',m.day|0)}</div><div><label>Time</label><input type="time" data-m="t" value="${m.t||'09:00'}"></div><div><label>Ticks</label>${mine?sel_('status',[['pending','🕓 Pending'],['sent','✓ Sent'],['delivered','✓✓ Delivered'],['read','✓✓ Read']],m.status||'read'):'<input type="text" disabled value="—">'}</div></div>
   ${m.type!=='system'?`<div class="g2"><div><label>Reactions (e.g. ❤️😂)</label><input type="text" data-m="reacts" value="${esc((m.reacts||[]).join(''))}"></div><div><label>Reply to</label>${sel_('replyTo',[['','— none —'],...pr.map(x=>[x.id,'#'+(c.messages.indexOf(x)+1)+' '+(msgPreviewText(x)||'').slice(0,22)])],m.replyTo||'')}</div></div>
   <div class="ckrow"><label class="ck"><input type="checkbox" data-mc="starred" ${m.starred?'checked':''}>Starred</label>${mine?`<label class="ck"><input type="checkbox" data-mc="edited" ${m.edited?'checked':''}>Edited</label>`:''}<label class="ck"><input type="checkbox" data-mc="forwarded" ${m.forwarded?'checked':''}>Forwarded</label>${m.type==='voice'&&!mine?`<label class="ck"><input type="checkbox" data-mc="heard" ${m.heard?'checked':''}>Played</label>`:''}</div>`:''}
  </div>`}).join('')}
@@ -1104,7 +1121,7 @@ function renderStudio(){const st=$('#studio');
  $('#stBack').onclick=()=>{stView=null;renderStudio()};
  $('#stOpen').onclick=()=>{const id=c.id;back(()=>{if(cur&&cur.id===id){renderChat();return}if(cur)back(()=>openChat(id));else openChat(id)})};
  st.querySelectorAll('[data-c]').forEach(el=>{el[el.type==='checkbox'?'onchange':'oninput']=()=>{const k=el.dataset.c;let v=el.type==='checkbox'?el.checked:el.value;if(k==='unread')v=parseInt(v)||0;c[k]=v;save();if(el.type==='checkbox'&&(k==='hasStatus'||k==='initials'))rer()}});
- st.querySelectorAll('.card > select[data-k], #lsBox select[data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;c[k]=k==='lsDay'?parseInt(el.value):el.value;save();if(k==='status')rer()});
+ bindDayPickers(st);st.querySelectorAll('.card > select[data-k], #lsBox select[data-k], #lsBox input[type=hidden][data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;c[k]=k==='lsDay'?parseInt(el.value):el.value;save();if(k==='status')rer()});
  $('#stAv').onclick=()=>pickFile('#fileImg',async f=>{c.avatar=await resizeImg(f,256,.85);save();rer()});$('#stAvX').onclick=()=>{c.avatar=null;save();rer()};
  $('#stDelChat').onclick=()=>{if(confirm('Delete this chat?')){S.chats=S.chats.filter(x=>x!==c);save();stView=null;renderStudio()}};
  $('#stSort').onclick=()=>{c.messages.sort((a,b)=>tsOf(a.day,a.t)-tsOf(b.day,b.t));save();rer()};
@@ -1117,7 +1134,7 @@ function renderStudio(){const st=$('#studio');
  $('#stAddMsg').onclick=addMsg;const a2=$('#stAddMsg2');if(a2)a2.onclick=addMsg;
  st.querySelectorAll('.mcard[data-i]').forEach(card=>{const i=+card.dataset.i;const m=c.messages[i];
   card.querySelectorAll('[data-m]').forEach(el=>el.oninput=()=>{const k=el.dataset.m;if(k==='reacts'){try{m.reacts=[...new Intl.Segmenter().segment(el.value)].map(x=>x.segment).filter(x=>x.trim())}catch(e){m.reacts=[...el.value]}}else m[k]=el.value;save()});
-  card.querySelectorAll('select[data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;let v=el.value;if(k==='day')v=parseInt(v);if(k==='from'){if(v==='sys')m.type='system';else if(m.type==='system')m.type='text';if(v==='me'&&!m.status)m.status='read'}if(k==='type'&&v==='system')m.from='sys';if(k==='type'&&v!=='system'&&m.from==='sys')m.from='me';if(k==='replyTo'&&!v)v=null;m[k]=v;save();if(k==='from'||k==='type')rer()});
+  card.querySelectorAll('select[data-k], input[type=hidden][data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;let v=el.value;if(k==='day')v=parseInt(v);if(k==='from'){if(v==='sys')m.type='system';else if(m.type==='system')m.type='text';if(v==='me'&&!m.status)m.status='read'}if(k==='type'&&v==='system')m.from='sys';if(k==='type'&&v!=='system'&&m.from==='sys')m.from='me';if(k==='replyTo'&&!v)v=null;m[k]=v;save();if(k==='from'||k==='type')rer()});
   card.querySelectorAll('[data-mc]').forEach(el=>el.onchange=()=>{m[el.dataset.mc]=el.checked;save()});
   card.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const j=i+ +b.dataset.mv;if(j<0||j>=c.messages.length)return;[c.messages[i],c.messages[j]]=[c.messages[j],c.messages[i]];save();rer()});
   card.querySelector('[data-dup]').onclick=()=>{c.messages.splice(i+1,0,Object.assign({},m,{id:uid()}));save();rer()};
@@ -1146,7 +1163,7 @@ function fieldHTML(f,i){const v=f.val??'';const lab=f.label?`<label>${esc(f.labe
  switch(f.type){
   case 'area':return lab+`<textarea data-f="${i}" rows="3">${esc(v)}</textarea>`;
   case 'select':return lab+`<select data-f="${i}">${f.opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
-  case 'day':return lab+`<select data-f="${i}">${DAYOPTS.map(o=>`<option value="${o[0]}" ${+o[0]===+v?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+  case 'day':return lab+dayPickerHTML(`data-f="${i}"`,v);
   case 'time':return lab+`<input type="time" data-f="${i}" value="${esc(v)}">`;
   case 'dp':return lab+dpFieldHTML(i,v,f.name);
   case 'num':return lab+`<input type="number" data-f="${i}" value="${esc(v)}">`;
@@ -1159,7 +1176,7 @@ function formSheet(title,fields,onSave,actions=[]){
   if(f.half&&fields[i+1]&&fields[i+1].half){h+=`<div class="efg"><div>${fieldHTML(f,i)}</div><div>${fieldHTML(fields[i+1],i+1)}</div></div>`;i+=2;continue}
   h+=fieldHTML(f,i);i++}
  sheet(`<div class="ef"><div class="efh"><b>${esc(title)}</b><button class="efsave">Save</button></div>${h}${actions.length?`<div class="efacts">${actions.map((a,j)=>`<button data-a="${j}" class="${a[2]||''}">${esc(a[0])}</button>`).join('')}</div>`:''}</div>`,o=>{
-  bindDp(o);o.querySelectorAll('[data-cp]').forEach(cp=>cp.oninput=()=>{o.querySelector(`[data-f="${cp.dataset.cp}"]`).value=cp.value});
+  bindDp(o);bindDayPickers(o);o.querySelectorAll('[data-cp]').forEach(cp=>cp.oninput=()=>{o.querySelector(`[data-f="${cp.dataset.cp}"]`).value=cp.value});
   o.querySelector('.efsave').onclick=()=>{const vals={};fields.forEach((f,k)=>{const el=o.querySelector(`[data-f="${k}"]`);if(!el)return;vals[f.k]=f.type==='check'?el.checked:f.type==='num'?(parseFloat(el.value)||0):f.type==='day'?parseInt(el.value):el.value});back(()=>{onSave(vals);save();refreshAll()})};
   o.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const a=actions[b.dataset.a];back(()=>{a[1]();save();refreshAll()})})})}
 function photoActs(obj,key,max){return [['Change photo',()=>pickFile('#fileImg',async f=>{obj[key||'avatar']=await resizeImg(f,max||256,.85);save();refreshAll()})],...(obj[key||'avatar']?[['Remove photo',()=>{obj[key||'avatar']=null}]]:[])]}
@@ -1270,6 +1287,46 @@ function fillPeople(){const names=namesInApp();
  <div style="height:100px"></div></div><button class="fab" id="pAdd" style="bottom:24px">${ic('add')}</button>`;
  $('#aux').querySelectorAll('[data-pn]').forEach(r=>r.onclick=()=>editPerson(r.dataset.pn));
  $('#pAdd').onclick=()=>dialog('Add a name','Type a name, then choose its photo',[['Cancel'],['Next',v=>{if(v&&v.trim())setTimeout(()=>editPerson(v.trim()),60)}]],true,'')}
+
+/* ================= DRAG TO REORDER (Edit mode) ================= */
+document.addEventListener('dragstart',e=>e.preventDefault());
+document.addEventListener('contextmenu',e=>{if(e.target.closest('img,.crow,.row,.sys,.scard,.chrow'))e.preventDefault()});
+let dragConsumed=false;
+function makeDrag(box,selector,opt){let d=null,raf=0;
+ const rowsFor=row=>[...box.querySelectorAll(selector)].filter(r=>!opt.group||opt.group(r)===opt.group(row));
+ box.addEventListener('pointerdown',e=>{dragConsumed=false;if(!opt.enabled())return;const row=e.target.closest(selector);if(!row||!box.contains(row))return;
+  d={row,x0:e.clientX,y0:e.clientY,y:e.clientY,lifted:false,moving:false};
+  d.t=setTimeout(()=>{if(!d)return;d.lifted=true;dragConsumed=true;row._lp=1;row.classList.add('lifted');document.body.classList.add('dragging-on');if(navigator.vibrate)navigator.vibrate(20)},450)});
+ box.addEventListener('touchmove',e=>{if(d&&d.lifted)e.preventDefault()},{passive:false});
+ box.addEventListener('pointermove',e=>{if(!d)return;const dx=e.clientX-d.x0,dy=e.clientY-d.y0;
+  if(!d.lifted){if(Math.abs(dx)>9||Math.abs(dy)>9){clearTimeout(d.t);d=null}return}
+  d.y=e.clientY;if(!d.moving&&Math.abs(dy)>6)start();if(d.moving)layout()});
+ function start(){d.moving=true;d.rows=rowsFor(d.row);d.idx=d.rows.indexOf(d.row);d.to=d.idx;d.sc=opt.scroller();d.s0=d.sc.scrollTop;
+  d.rects=d.rows.map(r=>r.getBoundingClientRect());const r0=d.rects[d.idx];let gap=0;if(d.rows.length>1){const j=d.idx>0?d.idx-1:d.idx+1;const a=d.rects[Math.min(j,d.idx)],b=d.rects[Math.max(j,d.idx)];gap=Math.max(0,b.top-a.bottom)}d.H=r0.height+gap;
+  d.rows.forEach(r=>{r.style.transition='transform .15s';r.style.position='relative'});d.row.style.transition='none';d.row.style.zIndex=6;tick()}
+ function layout(){const off=(d.y-d.y0)+(d.sc.scrollTop-d.s0);d.row.style.transform=`translateY(${off}px)`;const r0=d.rects[d.idx];const mid=r0.top+r0.height/2+off;let to=d.idx;
+  for(let i=d.idx+1;i<d.rows.length;i++){const r=d.rects[i];if(mid>r.top+r.height/2)to=i}
+  for(let i=d.idx-1;i>=0;i--){const r=d.rects[i];if(mid<r.top+r.height/2)to=i}
+  d.to=to;d.rows.forEach((r,i)=>{if(i===d.idx)return;let t=0;if(to>d.idx&&i>d.idx&&i<=to)t=-d.H;if(to<d.idx&&i<d.idx&&i>=to)t=d.H;r.style.transform=t?`translateY(${t}px)`:''})}
+ function tick(){if(!d||!d.moving)return;const sr=d.sc.getBoundingClientRect();let v=0;if(d.y<sr.top+70)v=-Math.ceil((sr.top+70-d.y)/6);else if(d.y>sr.bottom-70)v=Math.ceil((d.y-(sr.bottom-70))/6);if(v){d.sc.scrollTop+=v;layout()}raf=requestAnimationFrame(tick)}
+ function finish(cancel){if(!d)return;clearTimeout(d.t);cancelAnimationFrame(raf);const x=d;d=null;document.body.classList.remove('dragging-on');x.row.classList.remove('lifted');
+  if(x.rows)x.rows.forEach(r=>{r.style.transform='';r.style.transition='';r.style.zIndex='';r.style.position=''});
+  if(cancel||!x.lifted)return;if(!x.moving){opt.onTap(x.row);return}if(x.to!==x.idx)opt.onDrop(x.row,x.rows,x.idx,x.to);else opt.after&&opt.after()}
+ box.addEventListener('pointerup',()=>finish(false));box.addEventListener('pointercancel',()=>finish(!(d&&d.moving)));}
+// home chat list
+makeDrag($('#chatList'),'.crow[data-id]',{enabled:()=>EDIT()&&!chatSel.size&&!$('#search').value.trim()&&(filter==='all'||showArchived),scroller:()=>$('#chatScroll'),group:r=>r.dataset.pin,
+ onTap:row=>editChatInfo(chatById(row.dataset.id)),
+ onDrop:(row,rows,from,to)=>{const ids=[...$('#chatList').querySelectorAll('.crow[data-id]')].map(r=>r.dataset.id);const id=row.dataset.id;ids.splice(ids.indexOf(id),1);
+  const target=rows[to].dataset.id;let at=ids.indexOf(target);if(to>from)at++;ids.splice(at,0,id);
+  const rest=visibleChatsAll().filter(c=>!ids.includes(c.id));[...ids.map(chatById),...rest].forEach((c,i)=>c.ord=i);S.settings.manualOrder=true;save();renderChats()}});
+function visibleChatsAll(){const key=c=>{const m=lastMsg(c);return m?tsOf(m.day,m.t):0};const ord=c=>c.ord===undefined||c.ord===null?Infinity:c.ord;
+ return S.chats.slice().sort((a,b)=>(!!b.pinned-!!a.pinned)||(S.settings.manualOrder?((ord(a)-ord(b))||key(b)-key(a)):key(b)-key(a)))}
+// messages inside a chat
+makeDrag($('#msgs'),'.row[data-id], .sys[data-id]',{enabled:()=>EDIT()&&!sel.size&&!!cur,scroller:()=>$('#msgs'),
+ onTap:row=>{const m=msgById(row.dataset.id);if(m)editMsg(cur,m)},
+ onDrop:(row,rows,from,to)=>{const c=cur;const m=msgById(row.dataset.id);const t=msgById(rows[to].dataset.id);if(!m||!t)return;
+  c.messages.splice(c.messages.indexOf(m),1);let at=c.messages.indexOf(t);if(to>from)at++;c.messages.splice(at,0,m);
+  const prev=c.messages[at-1],next=c.messages[at+1];if(prev)m.day=prev.day;else if(next)m.day=next.day;save();renderMsgs(true)}});
 
 /* ================= INIT ================= */
 $('#search').addEventListener('input',renderChats);
