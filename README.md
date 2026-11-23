@@ -23,7 +23,7 @@ Settings → **Edit mode** switches between the two modes.
 Every day picker offers Today, Yesterday, the last week's weekday names, or **X days ago** with any number. A preview shows exactly how it will appear.
 
 ## Profile photos & renaming
-- Settings → **Profile photos**: set a photo once per *name*. Any chat, group, member or message showing that name uses it. You can pick one of 10 built-in sample pictures or a photo from your gallery.
+- Settings → **Profile photos**: set a photo once per *name*. Any chat, group, member or message showing that name uses it. You can pick one of 25 built-in face photos, 10 built-in drawings, or a photo from your gallery.
 - Settings → **Renaming a sender changes**: choose *Only that message* or *Every message with the same name*. This applies when you edit the sender name in a message (Edit mode → long-press a message).
 
 ## Theme
