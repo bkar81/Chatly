@@ -10,7 +10,12 @@ A messenger demo app in one file (`index.html`, with all the HTML, CSS and JS in
 ## Edit mode / Demo mode
 Settings → **Edit mode** switches between the two modes.
 - **Edit mode** (an orange "EDIT MODE" tag is shown): long-press almost anything to edit it right there, including messages, chat rows, the chat header name or photo, date chips, the encryption notice, status cards, channels, call rows, group members and your own profile. A **Sending as** chip above the message box lets you type messages as any person.
+- In Edit mode, long-press the app title → **Rename app**, **Open Studio** or **Theme colours**.
+- Long-press a message to edit its text, sender (and the sender's name), time, day, ticks and more. Long-press a chat title to edit the contact or group, including its scripted replies.
 - **Demo mode**: no editing at all, and the app behaves like a normal messenger. Switch to it before recording.
+
+## Theme
+Settings → **Chats** opens the theme editor. Every colour (backgrounds, text, bubbles, ticks, buttons, chips, header, pattern…) can be set with a colour picker or a hex code, separately for light and dark mode. It also has presets (Blue is the default, plus Teal, Purple, Rose and Graphite), reset, and export/import.
 
 ## Hidden controls (nobody sees them in the recording)
 | Action | What it does |
