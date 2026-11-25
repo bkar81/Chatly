@@ -8,7 +8,7 @@ A messenger demo app in one file (`index.html`, with all the HTML, CSS and JS in
 3. Tap **⋮ → Add to Home screen → Install**. It then opens full screen, with no address bar.
 
 ## App settings
-Settings → **App settings** (at the bottom) holds all the demo controls: Edit mode, the "Sending as" chip (off by default), new message time (current time or previous message + 1 min), auto-replies, typing bubble, tick timing, profile photos, renaming, encryption notice, clock, theme, app name, Studio and backup. The home ⋮ menu does not show it.
+Settings → **App settings** (at the bottom) holds all the demo controls: Edit mode, the "Sending as" chip (off by default), new message time (current time or previous message, plus a fixed or random gap in minutes), auto-replies, typing bubble, tick timing, profile photos, renaming, encryption notice, clock, theme, app name, Studio and backup. The home ⋮ menu does not show it.
 
 ## Edit mode / Demo mode
 Settings → **App settings** → **Edit mode** switches between the two modes.
@@ -20,7 +20,7 @@ Settings → **App settings** → **Edit mode** switches between the two modes.
 ## Reordering (Edit mode)
 - **Long-press, then drag** a chat on the home screen or a message inside a chat to move it. Long-press and let go without moving opens the editor.
 - Pinned chats stay at the top. Once you've reordered, a chat jumps to the top whenever a new message is sent or received in it, like a real messenger.
-- A message dropped under a different date label takes that day. Times stay as they are, so edit them if needed.
+- A dropped message takes its date and time from where it lands: below a message → that message's time + 1 min; at the top of a date group → 1 min before the message under it.
 
 ## Days
 Every day picker offers Today, Yesterday, the last week's weekday names, or **X days ago** with any number. A preview shows exactly how it will appear.

@@ -644,7 +644,7 @@ function seed(){
  const cricket={id:'g_cric',type:'group',name:'Cricket Gang 🏏',archived:true,members:[{id:'k1',name:'Naveen',color:'#02a698',phone:'+91 90000 11111'},{id:'k2',name:'Saravanan',color:'#df3a54',phone:'+91 90000 22222'}],
    messages:[m('k1','Saturday match 6 am. Late aana fine 😤',3,'21:00'),m('k2','Ok da',3,'21:05')]};
  return {v:1,me:{name:'Karthik',about:'Hey there! I am using Chatly.',avatar:null,phone:'+91 98400 12345'},
-  settings:{showAsChip:false,timeMode:'now',renameScope:'one',h24:false,theme:'auto',d1:1.2,d2:2.5,finalTick:'read',autoReply:true,enc:true,fab2:true,typingBubble:true,editMode:true},
+  settings:{showAsChip:false,timeMode:'now',nowGapMin:0,nowGapMax:0,followGapMin:1,followGapMax:1,renameScope:'one',h24:false,theme:'auto',d1:1.2,d2:2.5,finalTick:'read',autoReply:true,enc:true,fab2:true,typingBubble:true,editMode:true},
   chats:[fam,priya,off,ravi,deepa,divya,arun,suresh,cricket],
   calls:[{id:uid(),chat:'c_ravi',dir:'out',video:false,day:0,t:'09:15'},{id:uid(),chat:'c_priya',dir:'missed',video:true,day:1,t:'21:40'},{id:uid(),chat:'c_divya',dir:'in',video:false,day:2,t:'00:05'},{id:uid(),chat:'c_arun',dir:'out',video:false,day:4,t:'17:30'},{id:uid(),chat:'g_fam',dir:'in',video:true,day:6,t:'20:00'}],
   channels:[{name:'Tamil Tech Talks',emoji:'💻',bg:'#1f7aec',followers:'1.2M'},{name:'Daily Cricket Updates',emoji:'🏏',bg:'#00a884',followers:'3.4M'},{name:'Chennai Weather',emoji:'🌦️',bg:'#fc8d31',followers:'845K'}]};
@@ -1322,8 +1322,11 @@ function fillPeople(){const names=namesInApp();
  $('#aux').querySelectorAll('[data-pn]').forEach(r=>r.onclick=()=>editPerson(r.dataset.pn));
  $('#pAdd').onclick=()=>dialog('Add a name','Type a name, then choose its photo',[['Cancel'],['Next',v=>{if(v&&v.trim())setTimeout(()=>editPerson(v.trim()),60)}]],true,'')}
 
-function newTime(c){if(S.settings.timeMode!=='follow')return {day:0,t:nowHM()};const last=c&&c.messages[c.messages.length-1];if(!last)return {day:0,t:nowHM()};
- const day=last.day|0;const [h,mi]=(last.t||'09:00').split(':').map(Number);let x=h*60+mi+1;if(x>=1440){if(day>0)return {day:day-1,t:'00:00'};return {day:0,t:'23:59'}}return {day,t:pad(Math.floor(x/60))+':'+pad(x%60)}}
+function gapMins(mode){const st=S.settings;let lo=+(mode==='follow'?st.followGapMin:st.nowGapMin)||0,hi=+(mode==='follow'?st.followGapMax:st.nowGapMax)||0;lo=Math.max(0,Math.min(1439,lo));hi=Math.max(0,Math.min(1439,hi));if(hi<lo)[lo,hi]=[hi,lo];return lo+Math.floor(Math.random()*(hi-lo+1))}
+function newTime(c){const follow=S.settings.timeMode==='follow';const last=follow&&c&&c.messages[c.messages.length-1];let day=0,base;
+ if(last){day=last.day|0;const [h,mi]=(last.t||'09:00').split(':').map(Number);base=h*60+mi}else{const d=new Date();base=d.getHours()*60+d.getMinutes()}
+ const x=Math.min(1439,base+gapMins(last?'follow':'now'));return {day,t:pad(Math.floor(x/60))+':'+pad(x%60)}}
+function timeSummary(){const st=S.settings;const g=(a,b)=>(+a===+b?`+${a} min`:`+${a}–${b} min (random)`);return st.timeMode==='follow'?'Previous message '+g(st.followGapMin,st.followGapMax):'Current time '+g(st.nowGapMin,st.nowGapMax)}
 function openAppSettings(){openAux('appset')}
 function fillAppSettings(){const st=S.settings;const tg=on=>`<span class="toggle ${on?'on':''}"></span>`;
  const row=(id,icon,title,sub,right='')=>`<div class="irow" id="${id}">${ic(icon)}<div style="flex:1"><div>${title}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>${right}</div>`;
@@ -1332,7 +1335,7 @@ function fillAppSettings(){const st=S.settings;const tg=on=>`<span class="toggle
  ${row('asMode','edit','Edit mode',EDIT()?'On – long-press anything to edit it, drag to reorder. Turn off before recording.':'Off – Demo mode. The app behaves like a normal messenger.',tg(EDIT()))}
  ${row('asChipT','person','Show "Sending as" chip',st.showAsChip?'On – in Edit mode a chip above the message box lets you pick who you type as.':'Off – messages always go as You.',tg(st.showAsChip))}
  <div class="hint2">To send a message as someone else without the chip:<br>• <b>Long-press Send</b> – sends the typed text as the other person (in a group you pick who).<br>• Or send it as You, then (Edit mode) <b>long-press the message → change "From"</b>.</div>
- ${row('asTime','timer','New message time',st.timeMode==='follow'?'Follow previous message (+1 min)':'Current time (phone clock)')}
+ ${row('asTime','timer','New message time',timeSummary())}
  ${row('asAuto','chatb','Scripted auto-replies','Replies you set per chat play after you send',tg(st.autoReply))}
  ${row('asTyping','chatb','Typing bubble','Show the "…" bubble while someone is typing',tg(st.typingBubble))}
  ${row('asTicks','check','Ticks timing',`Delivered after ${st.d1}s · Read after ${st.d2}s · Stops at: ${st.finalTick}`)}
@@ -1354,7 +1357,7 @@ function fillAppSettings(){const st=S.settings;const tg=on=>`<span class="toggle
  <div style="height:40px"></div></div>`;
  const on=(id,f)=>{const el=$('#'+id);if(el)el.onclick=f};const flip=k=>{S.settings[k]=!S.settings[k];save();applyTheme();refreshAll()};
  on('asMode',()=>setMode(!EDIT()));on('asChipT',()=>flip('showAsChip'));on('asAuto',()=>flip('autoReply'));on('asTyping',()=>flip('typingBubble'));on('asEnc',()=>flip('enc'));on('asClock',()=>flip('h24'));
- on('asTime',()=>dialog('New message time','',[['Current time (phone clock)',()=>{st.timeMode='now';save();refreshAll()}],['Follow previous message (+1 min)',()=>{st.timeMode='follow';save();refreshAll()}],['Cancel']]));
+ on('asTime',()=>formSheet('New message time',[{k:'timeMode',label:'Base time',type:'select',opts:[['now','Current time (phone clock)'],['follow','Previous message in the chat']],val:st.timeMode},{k:'nowGapMin',label:'Current time: add at least (min)',type:'num',val:st.nowGapMin,half:1},{k:'nowGapMax',label:'…and at most (min)',type:'num',val:st.nowGapMax,half:1},{k:'followGapMin',label:'Previous message: add at least (min)',type:'num',val:st.followGapMin,half:1},{k:'followGapMax',label:'…and at most (min)',type:'num',val:st.followGapMax,half:1}],v=>{Object.assign(st,v);['nowGapMin','nowGapMax','followGapMin','followGapMax'].forEach(k=>st[k]=Math.max(0,Math.min(1439,Math.round(st[k]||0))))}));
  on('asTicks',()=>formSheet('Ticks timing',[{k:'d1',label:'Delivered after (seconds)',type:'num',val:st.d1,half:1},{k:'d2',label:'Read after (seconds)',type:'num',val:st.d2,half:1},{k:'finalTick',label:'Ticks stop at',type:'select',opts:[['sent','✓ Sent'],['delivered','✓✓ Delivered'],['read','✓✓ Read (blue)']],val:st.finalTick}],v=>Object.assign(st,v)));
  on('asPeople',openPeople);on('asTheme',openTheme);on('asName',renameApp);
  on('asScope',()=>dialog('Renaming a sender changes','',[['Only that message',()=>{st.renameScope='one';save();refreshAll()}],['Every message with the same name',()=>{st.renameScope='all';save();refreshAll()}],['Cancel']]));
@@ -1401,7 +1404,7 @@ makeDrag($('#msgs'),'.row[data-id], .sys[data-id]',{enabled:()=>EDIT()&&!sel.siz
  onTap:row=>{const m=msgById(row.dataset.id);if(m)editMsg(cur,m)},
  onDrop:(row,rows,from,to)=>{const c=cur;const m=msgById(row.dataset.id);const t=msgById(rows[to].dataset.id);if(!m||!t)return;
   c.messages.splice(c.messages.indexOf(m),1);let at=c.messages.indexOf(t);if(to>from)at++;c.messages.splice(at,0,m);
-  const prev=c.messages[at-1],next=c.messages[at+1];if(prev)m.day=prev.day;else if(next)m.day=next.day;save();renderMsgs(true)}});
+  m.day=t.day|0;const [th,tm]=(t.t||'09:00').split(':').map(Number);const x=Math.max(0,Math.min(1439,th*60+tm+(to>from?1:-1)));m.t=pad(Math.floor(x/60))+':'+pad(x%60);save();renderMsgs(true)}});
 
 AUXFILL.settings=fillSettings;AUXFILL.appset=fillAppSettings;AUXFILL.theme=fillTheme;AUXFILL.people=fillPeople;
 /* ================= INIT ================= */
