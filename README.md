@@ -7,8 +7,11 @@ A messenger demo app in one file (`index.html`, with all the HTML, CSS and JS in
 2. Open `https://bkar81.github.io/Chatly/` in Chrome on Android.
 3. Tap **⋮ → Add to Home screen → Install**. It then opens full screen, with no address bar.
 
+## App settings
+Settings → **App settings** (at the bottom) holds all the demo controls: Edit mode, the "Sending as" chip (off by default), new message time (current time or previous message + 1 min), auto-replies, typing bubble, tick timing, profile photos, renaming, encryption notice, clock, theme, app name, Studio and backup. The home ⋮ menu does not show it.
+
 ## Edit mode / Demo mode
-Settings → **Edit mode** switches between the two modes.
+Settings → **App settings** → **Edit mode** switches between the two modes.
 - **Edit mode** (an orange "EDIT MODE" tag is shown): long-press almost anything to edit it right there, including messages, chat rows, the chat header name or photo, date chips, the encryption notice, status cards, channels, call rows, group members and your own profile. A **Sending as** chip above the message box lets you type messages as any person.
 - In Edit mode, long-press the app title → **Rename app**, **Open Studio** or **Theme colours**.
 - Long-press a message to edit its text, sender (and the sender's name), time, day, ticks and more. Long-press a chat title to edit the contact or group, including its scripted replies.

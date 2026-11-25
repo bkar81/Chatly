@@ -306,6 +306,8 @@ img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
 .row.lifted,.sys.lifted{z-index:5}
 .row.lifted .bub,.sys.lifted{box-shadow:0 8px 20px rgba(0,0,0,.28);transform:scale(1.02)}
 .dragging-on{touch-action:none}
+.hint2{margin:2px 16px 8px 60px;padding:10px 12px;border-radius:10px;background:var(--chipbg);color:var(--sec);font-size:13.5px;line-height:1.5}
+.hint2 b{color:var(--text);font-weight:500}
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#3b4a54;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:90;white-space:nowrap}
 
 /* info */
@@ -642,7 +644,7 @@ function seed(){
  const cricket={id:'g_cric',type:'group',name:'Cricket Gang 🏏',archived:true,members:[{id:'k1',name:'Naveen',color:'#02a698',phone:'+91 90000 11111'},{id:'k2',name:'Saravanan',color:'#df3a54',phone:'+91 90000 22222'}],
    messages:[m('k1','Saturday match 6 am. Late aana fine 😤',3,'21:00'),m('k2','Ok da',3,'21:05')]};
  return {v:1,me:{name:'Karthik',about:'Hey there! I am using Chatly.',avatar:null,phone:'+91 98400 12345'},
-  settings:{renameScope:'one',h24:false,theme:'auto',d1:1.2,d2:2.5,finalTick:'read',autoReply:true,enc:true,fab2:true,typingBubble:true,editMode:true},
+  settings:{showAsChip:false,timeMode:'now',renameScope:'one',h24:false,theme:'auto',d1:1.2,d2:2.5,finalTick:'read',autoReply:true,enc:true,fab2:true,typingBubble:true,editMode:true},
   chats:[fam,priya,off,ravi,deepa,divya,arun,suresh,cricket],
   calls:[{id:uid(),chat:'c_ravi',dir:'out',video:false,day:0,t:'09:15'},{id:uid(),chat:'c_priya',dir:'missed',video:true,day:1,t:'21:40'},{id:uid(),chat:'c_divya',dir:'in',video:false,day:2,t:'00:05'},{id:uid(),chat:'c_arun',dir:'out',video:false,day:4,t:'17:30'},{id:uid(),chat:'g_fam',dir:'in',video:true,day:6,t:'20:00'}],
   channels:[{name:'Tamil Tech Talks',emoji:'💻',bg:'#1f7aec',followers:'1.2M'},{name:'Daily Cricket Updates',emoji:'🏏',bg:'#00a884',followers:'3.4M'},{name:'Chennai Weather',emoji:'🌦️',bg:'#fc8d31',followers:'845K'}]};
@@ -995,10 +997,10 @@ function startRec(){const r=document.createElement('div');r.className='recbar';r
  rec={el:r,t0:Date.now(),iv:setInterval(()=>{const s=Math.floor((Date.now()-rec.t0)/1000);$('#recT').textContent=Math.floor(s/60)+':'+pad(s%60)},250)}}
 function stopRec(cancel){if(!rec)return;clearInterval(rec.iv);rec.el.remove();$('#sendBtn').classList.remove('rec');const s=Math.round((Date.now()-rec.t0)/1000);rec=null;if(!cancel&&s>=1)addMine({type:'voice',dur:Math.floor(s/60)+':'+pad(s%60)})}
 function sendText(){const v=ta.value.replace(/\s+$/,'');if(!v.trim()&&!editId)return;
- if(EDIT()&&sendAs!=='me'&&!editId){const c=cur;ta.value='';autoGrow();const m={id:uid(),from:sendAs,text:v,day:0,t:nowHM(),type:'text'};if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);bumpChat(c);save();renderMsgs();renderComposer();return}
+ if(EDIT()&&S.settings.showAsChip&&sendAs!=='me'&&!editId){const c=cur;ta.value='';autoGrow();const m=Object.assign({id:uid(),from:sendAs,text:v,type:'text'},newTime(c));if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);bumpChat(c);save();renderMsgs();renderComposer();return}
  if(editId){const m=msgById(editId);if(m&&v.trim()&&v!==m.text){m.text=v;m.edited=true}editId=null;ta.value='';save();renderMsgs(true);renderComposer();autoGrow();return}
  ta.value='';autoGrow();addMine({type:'text',text:v})}
-function addMine(o){const c=cur;const m=Object.assign({id:uid(),from:'me',day:0,t:nowHM(),status:'pending',text:''},o);if(replyTo){m.replyTo=replyTo;replyTo=null}
+function addMine(o){const c=cur;const m=Object.assign({id:uid(),from:'me',status:'pending',text:''},newTime(c),o);if(replyTo){m.replyTo=replyTo;replyTo=null}
  c.messages.push(m);c.archived=false;bumpChat(c);save();renderMsgs();renderComposer();progressTicks(c,m);runScript(c)}
 function progressTicks(c,m){const fin=S.settings.finalTick;const order=['pending','sent','delivered','read'];const lim=order.indexOf(fin);
  const step=(st,ms)=>setTimeout(()=>{if(order.indexOf(m.status)>=order.indexOf(st)||order.indexOf(st)>lim)return;m.status=st;save();if(cur===c)updateTick(m)},ms);
@@ -1010,14 +1012,14 @@ function runScript(c){if(!S.settings.autoReply||!c.script||!c.script.length||scr
   const from=c.type==='group'?(it.from&&it.from!=='them'?it.from:c.members[0].id):'them';
   setTimeout(()=>{markAllRead(c);c._online=true;c._typing=from;refreshTyping(c);
    const dur=Math.min(4500,900+it.text.length*55);
-   setTimeout(()=>{c._typing=null;const m={id:uid(),from,text:it.text,day:0,t:nowHM(),type:it.type||'text'};if(it.type==='voice'){m.dur=it.text||'0:07';m.text=''}c.messages.push(m);
+   setTimeout(()=>{c._typing=null;const m=Object.assign({id:uid(),from,text:it.text,type:it.type||'text'},newTime(c));if(it.type==='voice'){m.dur=it.text||'0:07';m.text=''}c.messages.push(m);
     bumpChat(c);if(cur!==c){c.unread=(c.unread||0)+1}save();refreshTyping(c,true);
     clearTimeout(c._onT);c._onT=setTimeout(()=>{c._online=false;if(cur===c)renderChatHead()},12000);
     if(c.script.length&&c.script[0].cont)next();else scriptBusy[c.id]=false},dur)},(it.wait||1.5)*1000)};
  next()}
 function refreshTyping(c,added){if(cur===c){renderChatHead();if(added||S.settings.typingBubble)renderMsgs(true);if(added)scrollBottom()} if(!$('#home').classList.contains('hidden'))renderHome()}
 function sendAsOther(){const c=cur;const v=ta.value.trim();if(!v)return;
- const doSend=from=>{ta.value='';autoGrow();const m={id:uid(),from,text:v,day:0,t:nowHM(),type:'text'};if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);bumpChat(c);save();renderMsgs();renderComposer()};
+ const doSend=from=>{ta.value='';autoGrow();const m=Object.assign({id:uid(),from,text:v,type:'text'},newTime(c));if(replyTo){m.replyTo=replyTo;replyTo=null}markAllRead(c);c.messages.push(m);bumpChat(c);save();renderMsgs();renderComposer()};
  if(c.type==='group'){menu(c.members.map(x=>[x.name,()=>doSend(x.id)]),'top:auto;bottom:70px;right:10px')}else doSend('them')}
 
 /* long press helper */
@@ -1064,7 +1066,7 @@ function openNewChat(isCall,isGroup,fwdMsgs){auxKind=null;const dms=S.chats.filt
  <div style="height:100px"></div></div>${isGroup?`<button class="fab" id="ngOk" style="bottom:24px">${ic('check')}</button>`:''}`;
  showScreen('aux');const picked=new Set();
  $('#aux').querySelectorAll('.nc').forEach(r=>r.onclick=()=>{const id=r.dataset.id;
-  if(fwdMsgs){const c=chatById(id);fwdMsgs.forEach(m=>c.messages.push(Object.assign({},m,{id:uid(),from:'me',day:0,t:nowHM(),status:'sent',forwarded:true,reacts:[],starred:false,replyTo:null})));save();back(()=>back(()=>toast('Message forwarded')));return}
+  if(fwdMsgs){const c=chatById(id);fwdMsgs.forEach(m=>c.messages.push(Object.assign({},m,newTime(c),{id:uid(),from:'me',status:'sent',forwarded:true,reacts:[],starred:false,replyTo:null})));save();back(()=>back(()=>toast('Message forwarded')));return}
   if(isGroup){picked.has(id)?picked.delete(id):picked.add(id);r.classList.toggle('sel');return}
   if(isCall){back(()=>toast('Calling…'));return}
   back(()=>{if(cur)back(()=>openChat(id));else openChat(id)})});
@@ -1073,11 +1075,13 @@ function openNewChat(isCall,isGroup,fwdMsgs){auxKind=null;const dms=S.chats.filt
  const ok=$('#ngOk');if(ok)ok.onclick=()=>{if(!picked.size){toast('At least 1 contact must be selected');return}const mem=[...picked].map((id,i)=>{const c=chatById(id);return {id:'m'+uid(),name:c.name,color:COLORS[i%COLORS.length],phone:c.phone||'',avatar:c.avatar||null}});
   back(()=>dialog('Group name','',[['Cancel'],['Create',v=>{const g={id:'g_'+uid(),type:'group',name:v||'New group',members:mem,about:'',messages:[{id:uid(),from:'sys',type:'system',text:'You created group "'+(v||'New group')+'"',day:0,t:nowHM()}]};S.chats.push(g);save();openChat(g.id)}]],true,''))};
 }
-function openSettings(){fillSettings();auxKind='settings';showScreen('aux',()=>{auxKind=null})}
-function fillSettings(){const rows=[['key','Account','Security notifications, change number'],['lock','Privacy','Block contacts, disappearing messages'],['person','Avatar','Create, edit, profile photo'],['group','Lists','Manage people and groups'],['chatb','Chats','Theme, colours, wallpaper'],['bell','Notifications','Message, group & call tones'],['data','Storage and data','Network usage, auto-download'],['globe','App language',"English (device's language)"],['help','Help','Help centre, contact us, privacy policy'],['group','Invite a friend','']];
- $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">Settings</div><button class="ibtn">${ic('search')}</button></div><div class="scroll"><div class="prof" id="setProf">${avatarHTML(S.me,64)}<div style="flex:1"><div class="n">${esc(S.me.name)}</div><div class="a">${esc(S.me.about)}</div></div>${ic('qr',24,'fill:var(--accent)')}</div><div class="gap" style="height:1px"></div><div class="irow" id="peopleRow">${ic('contact')}<div style="flex:1"><div>Profile photos</div><div class="sub">Photo for each name – shows in every chat</div></div></div><div class="irow" id="scopeRow">${ic('edit')}<div style="flex:1"><div>Renaming a sender changes</div><div class="sub">${S.settings.renameScope==='all'?'Every message with the same name':'Only that message'}</div></div></div><div class="irow" id="modeRow">${ic('edit')}<div style="flex:1"><div>Edit mode</div><div class="sub">${EDIT()?'On – long-press anything to edit it. Turn off before recording.':'Off – Demo mode. The app behaves like a normal messenger.'}</div></div><span class="toggle ${EDIT()?'on':''}"></span></div>${rows.map(r=>`<div class="irow" ${r[1]==='Chats'?'id="setChats"':''}>${ic(r[0])}<div><div>${r[1]}</div>${r[2]?`<div class="sub">${r[2]}</div>`:''}</div></div>`).join('')}<div style="text-align:center;color:var(--sec);font-size:13px;padding:24px 0 40px">from<br><b style="color:var(--text);letter-spacing:1px">${esc(appName())}</b></div></div>`;
- longPress($('#setProf'),()=>{if(EDIT())editMe()});bindModeRow();
- $('#setChats').onclick=openTheme}
+const AUXFILL={};
+function openAux(kind){const el=$('#aux');if(el.classList.contains('show')&&auxKind){const prev=auxKind,sc=$('#aux .scroll')?.scrollTop||0;auxKind=kind;AUXFILL[kind]();pushLayer(()=>{auxKind=prev;AUXFILL[prev]&&AUXFILL[prev]();const s2=$('#aux .scroll');if(s2)s2.scrollTop=sc})}else{auxKind=kind;AUXFILL[kind]();showScreen('aux',()=>{auxKind=null})}}
+function openSettings(){openAux('settings')}
+function fillSettings(){const rows=[['key','Account','Security notifications, change number'],['lock','Privacy','Block contacts, disappearing messages'],['person','Avatar','Create, edit, profile photo'],['group','Lists','Manage people and groups'],['chatb','Chats','Theme, colours, wallpaper'],['bell','Notifications','Message, group & call tones'],['data','Storage and data','Network usage, auto-download'],['globe','App language',"English (device's language)"],['help','Help','Help centre, contact us, privacy policy'],['group','Invite a friend',''],['edit','App settings','Edit mode, recording options, photos, theme']];
+ $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">Settings</div><button class="ibtn">${ic('search')}</button></div><div class="scroll"><div class="prof" id="setProf">${avatarHTML(S.me,64)}<div style="flex:1"><div class="n">${esc(S.me.name)}</div><div class="a">${esc(S.me.about)}</div></div>${ic('qr',24,'fill:var(--accent)')}</div><div class="gap" style="height:1px"></div>${rows.map(r=>`<div class="irow" ${r[1]==='Chats'?'id="setChats"':r[1]==='App settings'?'id="setApp"':''}>${ic(r[0])}<div><div>${r[1]}</div>${r[2]?`<div class="sub">${r[2]}</div>`:''}</div></div>`).join('')}<div style="text-align:center;color:var(--sec);font-size:13px;padding:24px 0 40px">from<br><b style="color:var(--text);letter-spacing:1px">${esc(appName())}</b></div></div>`;
+ longPress($('#setProf'),()=>{if(EDIT())editMe()});
+ $('#setChats').onclick=openTheme;$('#setApp').onclick=openAppSettings}
 function openStarred(){auxKind=null;const list=[];S.chats.forEach(c=>c.messages.forEach(m=>{if(m.starred)list.push([c,m])}));
  $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">Starred messages</div><button class="ibtn">${ic('search')}</button></div><div class="scroll" style="background:var(--chat)">${list.length?list.map(([c,m])=>`<div style="padding:10px 16px;background:var(--bg);margin-bottom:1px"><div style="font-size:13px;color:var(--sec);display:flex"><b style="color:var(--text);font-weight:500">${esc(senderName(c,m))}</b>&nbsp;▸ ${esc(c.name)}<span style="margin-left:auto">${listTime(m.day,m.t)}</span></div><div style="margin-top:4px">${esc(msgPreviewText(m))}</div></div>`).join(''):`<div class="empty"><div style="font-size:60px">⭐</div><div>Tap and hold on any message in any chat to star it, so you can easily find it later.</div></div>`}</div>`;showScreen('aux')}
 
@@ -1186,9 +1190,9 @@ let sendAs='me',auxKind=null;
 function renderPill(){const p=$('#editPill');if(p)p.remove()}
 function setMode(on){S.settings.editMode=on;save();if(!on)sendAs='me';renderPill();refreshAll();toast(on?'Edit mode on':'Demo mode on')}
 function bindModeRow(){const r=$('#modeRow');if(r)r.onclick=()=>setMode(!EDIT());const pr=$('#peopleRow');if(pr)pr.onclick=openPeople;const sr=$('#scopeRow');if(sr)sr.onclick=()=>dialog('Renaming a sender changes','',[['Only that message',()=>{S.settings.renameScope='one';save();refreshAll()}],['Every message with the same name',()=>{S.settings.renameScope='all';save();refreshAll()}],['Cancel']])}
-function renderAsChip(){let ch=$('#asChip');$('#chat').classList.toggle('editing',EDIT()&&!!cur);if(!EDIT()||!cur){if(ch)ch.remove();return}if(!ch){ch=document.createElement('button');ch.id='asChip';$('#composer').appendChild(ch);ch.onpointerdown=e=>e.preventDefault();ch.onclick=()=>{const c=cur;const opts=[['me','You'],...(c.type==='group'?c.members.map(x=>[x.id,x.name]):[['them',c.name]])];menu(opts.map(o=>[(o[0]===sendAs?'✓ ':'')+o[1],()=>{sendAs=o[0];renderAsChip()}]),'top:auto;bottom:120px;left:10px;right:auto')}}
+function renderAsChip(){let ch=$('#asChip');const showChip=EDIT()&&!!cur&&S.settings.showAsChip;if(!showChip)sendAs='me';$('#chat').classList.toggle('editing',showChip);if(!showChip){if(ch)ch.remove();return}if(!ch){ch=document.createElement('button');ch.id='asChip';$('#composer').appendChild(ch);ch.onpointerdown=e=>e.preventDefault();ch.onclick=()=>{const c=cur;const opts=[['me','You'],...(c.type==='group'?c.members.map(x=>[x.id,x.name]):[['them',c.name]])];menu(opts.map(o=>[(o[0]===sendAs?'✓ ':'')+o[1],()=>{sendAs=o[0];renderAsChip()}]),'top:auto;bottom:120px;left:10px;right:auto')}}
  ch.textContent='Sending as: '+(sendAs==='me'?'You':member(cur,sendAs).name)+' ▾'}
-function refreshAll(){renderHome();if(cur){renderChatHead();renderMsgs(true);renderComposer()}if($('#info').classList.contains('show'))renderInfo();if(auxKind==='settings')fillSettings();if(auxKind==='theme')fillTheme();if(auxKind==='people')fillPeople()}
+function refreshAll(){renderHome();if(cur){renderChatHead();renderMsgs(true);renderComposer()}if($('#info').classList.contains('show'))renderInfo();if(AUXFILL[auxKind])AUXFILL[auxKind]();else if(auxKind==='settings')fillSettings();if(auxKind==='theme')fillTheme();if(auxKind==='people')fillPeople()}
 function fieldHTML(f,i){const v=f.val??'';const lab=f.label?`<label>${esc(f.label)}</label>`:'';
  switch(f.type){
   case 'area':return lab+`<textarea data-f="${i}" rows="3">${esc(v)}</textarea>`;
@@ -1259,7 +1263,7 @@ function textToScript(c,t){return (t||'').split('\n').map(x=>x.trim()).filter(Bo
  return {id:uid(),from,text:line,cont,wait:1.5}})}
 function renameApp(){dialog('App name','Shown at the top of the chats screen, in Settings and in the browser tab.',[['Cancel'],['Save',v=>{if(v&&v.trim()){S.settings.appName=v.trim();save();applyTheme();refreshAll()}}]],true,appName())}
 let themeEditMode=null;
-function openTheme(){themeEditMode=curMode();fillTheme();auxKind='theme';showScreen('aux',()=>{auxKind=null})}
+function openTheme(){themeEditMode=curMode();openAux('theme')}
 function fillTheme(){const md=themeEditMode;const v=themeVals(md);const ov=((S.settings.colors||{})[md])||{};
  const hex=c=>{c=String(c).trim();if(/^#[0-9a-f]{6}/i.test(c))return c.slice(0,7);if(/^#[0-9a-f]{3}$/i.test(c))return '#'+[...c.slice(1)].map(x=>x+x).join('');return '#000000'};
  $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">Theme</div><button class="ibtn" id="thMore">${ic('more')}</button></div><div class="scroll">
@@ -1310,13 +1314,54 @@ function namesInApp(){const set=new Map();const add=n=>{n=String(n||'').trim();i
 function editPerson(name){S.people=S.people||[];let p=S.people.find(x=>normName(x.name)===normName(name));
  formSheet('Profile photo',[{k:'name',label:'Name (any chat, group or member with this name uses this photo)',val:name},{k:'avatar',label:'Photo',type:'dp',val:p?p.avatar:''}],v=>{
   const nm=v.name.trim()||name;if(!p){p={name:nm,avatar:null};S.people.push(p)}p.name=nm;p.avatar=v.avatar||null;if(!p.avatar)S.people=S.people.filter(x=>x!==p)})}
-function openPeople(){auxKind='people';fillPeople();showScreen('aux',()=>{auxKind=null})}
+function openPeople(){openAux('people')}
 function fillPeople(){const names=namesInApp();
  $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title" style="font-size:19px">Profile photos<div style="font-size:13px;color:var(--sec);font-weight:400">Set a photo once per name – it shows everywhere</div></div></div><div class="scroll">
  ${names.map(n=>`<div class="crow" data-pn="${esc(n)}">${avatarHTML({name:n},46)}<div class="cmain"><div class="nm" style="font-size:16px;font-weight:500">${esc(n)}</div><div style="color:var(--sec);font-size:13.5px">${personPhoto(n)?'Photo set':'No photo'}</div></div>${ic('edit',20,'fill:var(--sec)')}</div>`).join('')}
  <div style="height:100px"></div></div><button class="fab" id="pAdd" style="bottom:24px">${ic('add')}</button>`;
  $('#aux').querySelectorAll('[data-pn]').forEach(r=>r.onclick=()=>editPerson(r.dataset.pn));
  $('#pAdd').onclick=()=>dialog('Add a name','Type a name, then choose its photo',[['Cancel'],['Next',v=>{if(v&&v.trim())setTimeout(()=>editPerson(v.trim()),60)}]],true,'')}
+
+function newTime(c){if(S.settings.timeMode!=='follow')return {day:0,t:nowHM()};const last=c&&c.messages[c.messages.length-1];if(!last)return {day:0,t:nowHM()};
+ const day=last.day|0;const [h,mi]=(last.t||'09:00').split(':').map(Number);let x=h*60+mi+1;if(x>=1440){if(day>0)return {day:day-1,t:'00:00'};return {day:0,t:'23:59'}}return {day,t:pad(Math.floor(x/60))+':'+pad(x%60)}}
+function openAppSettings(){openAux('appset')}
+function fillAppSettings(){const st=S.settings;const tg=on=>`<span class="toggle ${on?'on':''}"></span>`;
+ const row=(id,icon,title,sub,right='')=>`<div class="irow" id="${id}">${ic(icon)}<div style="flex:1"><div>${title}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>${right}</div>`;
+ $('#aux').innerHTML=`<div class="topbar" style="padding-left:4px"><button class="ibtn" onclick="back()">${ic('back')}</button><div class="title">App settings</div></div><div class="scroll">
+ <div class="tgrp">Recording</div>
+ ${row('asMode','edit','Edit mode',EDIT()?'On – long-press anything to edit it, drag to reorder. Turn off before recording.':'Off – Demo mode. The app behaves like a normal messenger.',tg(EDIT()))}
+ ${row('asChipT','person','Show "Sending as" chip',st.showAsChip?'On – in Edit mode a chip above the message box lets you pick who you type as.':'Off – messages always go as You.',tg(st.showAsChip))}
+ <div class="hint2">To send a message as someone else without the chip:<br>• <b>Long-press Send</b> – sends the typed text as the other person (in a group you pick who).<br>• Or send it as You, then (Edit mode) <b>long-press the message → change "From"</b>.</div>
+ ${row('asTime','timer','New message time',st.timeMode==='follow'?'Follow previous message (+1 min)':'Current time (phone clock)')}
+ ${row('asAuto','chatb','Scripted auto-replies','Replies you set per chat play after you send',tg(st.autoReply))}
+ ${row('asTyping','chatb','Typing bubble','Show the "…" bubble while someone is typing',tg(st.typingBubble))}
+ ${row('asTicks','check','Ticks timing',`Delivered after ${st.d1}s · Read after ${st.d2}s · Stops at: ${st.finalTick}`)}
+ <div class="tgrp">Chats</div>
+ ${row('asPeople','contact','Profile photos','Photo for each name – shows in every chat')}
+ ${row('asScope','edit','Renaming a sender changes',st.renameScope==='all'?'Every message with the same name':'Only that message')}
+ ${row('asEnc','lock','Encryption notice in chats','',tg(st.enc))}
+ ${row('asClock','timer','24-hour clock',st.h24?'18:42':'6:42 pm',tg(st.h24))}
+ <div class="tgrp">Look</div>
+ ${row('asTheme','image','Theme colours','Every colour, light & dark, presets')}
+ ${row('asName','edit','App name',esc(appName()))}
+ <div class="tgrp">Data</div>
+ ${row('asStudio','data','Open Studio','Full editor: all chats, messages, scripted replies')}
+ ${row('asExp','doc','Export backup','Save all chats and settings as a file')}
+ ${row('asImp','doc','Import backup','')}
+ ${row('asReset','del','Reset to sample chats','')}
+ <div class="tgrp">Tips</div>
+ <div class="hint2">• Swipe a message right to reply. Hold the mic to record a voice note.<br>• Edit mode: long-press a chat title, message, date label, status, call or member to edit it; long-press and drag to reorder chats and messages.<br>• Long-press the app title on the chats screen (Edit mode) for Rename / Studio / Theme.</div>
+ <div style="height:40px"></div></div>`;
+ const on=(id,f)=>{const el=$('#'+id);if(el)el.onclick=f};const flip=k=>{S.settings[k]=!S.settings[k];save();applyTheme();refreshAll()};
+ on('asMode',()=>setMode(!EDIT()));on('asChipT',()=>flip('showAsChip'));on('asAuto',()=>flip('autoReply'));on('asTyping',()=>flip('typingBubble'));on('asEnc',()=>flip('enc'));on('asClock',()=>flip('h24'));
+ on('asTime',()=>dialog('New message time','',[['Current time (phone clock)',()=>{st.timeMode='now';save();refreshAll()}],['Follow previous message (+1 min)',()=>{st.timeMode='follow';save();refreshAll()}],['Cancel']]));
+ on('asTicks',()=>formSheet('Ticks timing',[{k:'d1',label:'Delivered after (seconds)',type:'num',val:st.d1,half:1},{k:'d2',label:'Read after (seconds)',type:'num',val:st.d2,half:1},{k:'finalTick',label:'Ticks stop at',type:'select',opts:[['sent','✓ Sent'],['delivered','✓✓ Delivered'],['read','✓✓ Read (blue)']],val:st.finalTick}],v=>Object.assign(st,v)));
+ on('asPeople',openPeople);on('asTheme',openTheme);on('asName',renameApp);
+ on('asScope',()=>dialog('Renaming a sender changes','',[['Only that message',()=>{st.renameScope='one';save();refreshAll()}],['Every message with the same name',()=>{st.renameScope='all';save();refreshAll()}],['Cancel']]));
+ on('asStudio',()=>openStudio());
+ on('asExp',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download='chatly-backup.json';a.click()});
+ on('asImp',()=>pickFile('#fileAny',f=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.chats)throw 0;S=d;load2();if(!S.people)S.people=seedPeople();save();applyTheme();refreshAll();toast('Imported')}catch(e){toast('Invalid file')}};r.readAsText(f)}));
+ on('asReset',()=>dialog('Reset to sample chats?','All your chats and settings will be replaced.',[['Cancel'],['Reset',()=>{S=seed();S.people=seedPeople();save();applyTheme();refreshAll()}]],true))}
 
 /* ================= DRAG TO REORDER (Edit mode) ================= */
 document.addEventListener('dragstart',e=>e.preventDefault());
@@ -1358,6 +1403,7 @@ makeDrag($('#msgs'),'.row[data-id], .sys[data-id]',{enabled:()=>EDIT()&&!sel.siz
   c.messages.splice(c.messages.indexOf(m),1);let at=c.messages.indexOf(t);if(to>from)at++;c.messages.splice(at,0,m);
   const prev=c.messages[at-1],next=c.messages[at+1];if(prev)m.day=prev.day;else if(next)m.day=next.day;save();renderMsgs(true)}});
 
+AUXFILL.settings=fillSettings;AUXFILL.appset=fillAppSettings;AUXFILL.theme=fillTheme;AUXFILL.people=fillPeople;
 /* ================= INIT ================= */
 $('#search').addEventListener('input',renderChats);
 applyTheme();history.replaceState({root:1},'');renderHome();renderPill();
